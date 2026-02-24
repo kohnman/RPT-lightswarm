@@ -3,6 +3,21 @@
  * Main Entry Point
  */
 
+console.log('[STARTUP] Loading modules...');
+console.log('[STARTUP] NODE_ENV:', process.env.NODE_ENV);
+console.log('[STARTUP] PORT:', process.env.PORT);
+console.log('[STARTUP] SIMULATION_MODE:', process.env.SIMULATION_MODE);
+
+process.on('uncaughtException', (err) => {
+  console.error('[FATAL] Uncaught exception:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[FATAL] Unhandled rejection:', reason);
+  process.exit(1);
+});
+
 const path = require('path');
 const { database } = require('./config');
 const mdp = require('./mdp');
@@ -85,8 +100,17 @@ async function initialize() {
   server = httpServer;
   
   const port = parseInt(process.env.PORT || database.settings.get('api_port') || '3000', 10);
-  server.listen(port, '0.0.0.0', () => {
-    console.log(`      API server listening on port ${port}`);
+  console.log(`      PORT env: ${process.env.PORT}, Using port: ${port}`);
+  
+  await new Promise((resolve, reject) => {
+    server.on('error', (err) => {
+      console.error(`      Server error: ${err.message}`);
+      reject(err);
+    });
+    server.listen(port, '0.0.0.0', () => {
+      console.log(`      API server listening on port ${port}`);
+      resolve();
+    });
   });
 
   console.log('\n[5/5] Initializing animation engine...');
