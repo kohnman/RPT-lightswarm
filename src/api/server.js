@@ -48,6 +48,7 @@ async function createServer(serialConnection, options = {}) {
   app.use(loggingMiddleware(io));
 
   app.use(express.static(path.join(__dirname, '../../public')));
+  app.use('/docs', express.static(path.join(__dirname, '../../docs')));
 
   app.use('/api/v1/session', sessionRoutes);
   app.use('/api/v1/apartments', apartmentsRoutes);

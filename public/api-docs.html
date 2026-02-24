@@ -298,13 +298,27 @@
     </section>
 
     <section class="mb-8">
-      <h2 class="text-2xl font-bold mb-4">Status Endpoint</h2>
+      <h2 class="text-2xl font-bold mb-4">System Endpoints</h2>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-get px-2 py-1 rounded text-xs font-mono mr-3">GET</span>
+          <span class="font-mono flex-1">/health</span>
+          <span class="text-gray-400 text-sm">Health check</span>
+          <button onclick="tryEndpoint('/api/v1/health', 'GET')" class="ml-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs">Try It</button>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Simple health check endpoint for monitoring.</p>
+          <div id="result-health" class="hidden bg-gray-900 rounded p-3 mt-3"></div>
+        </div>
+      </div>
 
       <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
         <div class="flex items-center p-3 bg-gray-700">
           <span class="method-get px-2 py-1 rounded text-xs font-mono mr-3">GET</span>
           <span class="font-mono flex-1">/status</span>
           <span class="text-gray-400 text-sm">Get system status</span>
+          <button onclick="tryEndpoint('/api/v1/status', 'GET')" class="ml-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs">Try It</button>
         </div>
         <div class="p-4">
           <p class="text-gray-400 mb-3">Returns current system status including serial connection and statistics.</p>
@@ -322,6 +336,178 @@
     "baudRate": 38400
   },
   "timestamp": "2026-02-24T10:00:00.000Z"
+}</pre>
+          </div>
+          <div id="result-status" class="hidden bg-gray-900 rounded p-3 mt-3"></div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-get px-2 py-1 rounded text-xs font-mono mr-3">GET</span>
+          <span class="font-mono flex-1">/session/status</span>
+          <span class="text-gray-400 text-sm">Get session status</span>
+          <button onclick="tryEndpoint('/api/v1/session/status', 'GET')" class="ml-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs">Try It</button>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Check if a session is active and ambient animation status.</p>
+          <div id="result-session-status" class="hidden bg-gray-900 rounded p-3 mt-3"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-4">Admin Endpoints</h2>
+      <p class="text-gray-400 mb-4">These endpoints are for configuration and testing. Not typically used by Herescope.</p>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-get px-2 py-1 rounded text-xs font-mono mr-3">GET</span>
+          <span class="font-mono flex-1">/admin/apartments/stats</span>
+          <span class="text-gray-400 text-sm">Get apartment statistics</span>
+          <button onclick="tryEndpoint('/api/v1/admin/apartments/stats', 'GET')" class="ml-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs">Try It</button>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Returns statistics about apartments and light assignments.</p>
+          <div id="result-admin-stats" class="hidden bg-gray-900 rounded p-3 mt-3"></div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-get px-2 py-1 rounded text-xs font-mono mr-3">GET</span>
+          <span class="font-mono flex-1">/admin/apartments/floors</span>
+          <span class="text-gray-400 text-sm">List all floors</span>
+          <button onclick="tryEndpoint('/api/v1/admin/apartments/floors', 'GET')" class="ml-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs">Try It</button>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Returns list of floors with apartment counts.</p>
+          <div id="result-admin-floors" class="hidden bg-gray-900 rounded p-3 mt-3"></div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-get px-2 py-1 rounded text-xs font-mono mr-3">GET</span>
+          <span class="font-mono flex-1">/admin/colors</span>
+          <span class="text-gray-400 text-sm">Get state colors</span>
+          <button onclick="tryEndpoint('/api/v1/admin/colors', 'GET')" class="ml-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs">Try It</button>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Returns current color configuration for each state.</p>
+          <div id="result-admin-colors" class="hidden bg-gray-900 rounded p-3 mt-3"></div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-get px-2 py-1 rounded text-xs font-mono mr-3">GET</span>
+          <span class="font-mono flex-1">/admin/serial/status</span>
+          <span class="text-gray-400 text-sm">Get serial connection status</span>
+          <button onclick="tryEndpoint('/api/v1/admin/serial/status', 'GET')" class="ml-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs">Try It</button>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Returns serial port connection details.</p>
+          <div id="result-admin-serial" class="hidden bg-gray-900 rounded p-3 mt-3"></div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-get px-2 py-1 rounded text-xs font-mono mr-3">GET</span>
+          <span class="font-mono flex-1">/admin/simulator/status</span>
+          <span class="text-gray-400 text-sm">Get simulator status</span>
+          <button onclick="tryEndpoint('/api/v1/admin/simulator/status', 'GET')" class="ml-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs">Try It</button>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Returns simulator state when in simulation mode.</p>
+          <div id="result-admin-simulator" class="hidden bg-gray-900 rounded p-3 mt-3"></div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-post px-2 py-1 rounded text-xs font-mono mr-3">POST</span>
+          <span class="font-mono flex-1">/admin/test/address</span>
+          <span class="text-gray-400 text-sm">Test specific address</span>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Send test command to a specific light address.</p>
+          <div class="code-block relative bg-gray-900 rounded p-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Request:</p>
+            <pre class="text-sm text-green-400">{
+  "address": 1000,
+  "command": "rgb",    // on, off, level, rgb, fade, rgb_fade
+  "red": 255,
+  "green": 0,
+  "blue": 0,
+  "level": 255,
+  "fadeTime": 500
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-post px-2 py-1 rounded text-xs font-mono mr-3">POST</span>
+          <span class="font-mono flex-1">/admin/test/broadcast</span>
+          <span class="text-gray-400 text-sm">Broadcast command to all</span>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Send broadcast command to all lights.</p>
+          <div class="code-block relative bg-gray-900 rounded p-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Request:</p>
+            <pre class="text-sm text-green-400">{
+  "command": "on",     // on, off, level
+  "level": 200         // For level command
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-4">Error Responses</h2>
+      <div class="bg-gray-800 rounded-lg p-4">
+        <p class="text-gray-400 mb-4">All endpoints return consistent error responses:</p>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-gray-700 rounded p-3">
+            <p class="font-mono text-yellow-400 mb-2">400 Bad Request</p>
+            <pre class="text-sm text-gray-300">{
+  "success": false,
+  "error": "Invalid state value",
+  "details": "State must be one of: AVAILABLE, SOLD, RESERVED, UNAVAILABLE, SELECTED"
+}</pre>
+          </div>
+          
+          <div class="bg-gray-700 rounded p-3">
+            <p class="font-mono text-yellow-400 mb-2">404 Not Found</p>
+            <pre class="text-sm text-gray-300">{
+  "success": false,
+  "error": "Apartment not found",
+  "id": "T1-L99-01"
+}</pre>
+          </div>
+          
+          <div class="bg-gray-700 rounded p-3">
+            <p class="font-mono text-red-400 mb-2">500 Internal Server Error</p>
+            <pre class="text-sm text-gray-300">{
+  "success": false,
+  "error": "Serial communication failed",
+  "details": "Port not open"
+}</pre>
+          </div>
+          
+          <div class="bg-gray-700 rounded p-3">
+            <p class="font-mono text-red-400 mb-2">502 Bad Gateway</p>
+            <pre class="text-sm text-gray-300">{
+  "success": false,
+  "error": "Service unavailable",
+  "details": "Middleware not running"
 }</pre>
           </div>
         </div>
@@ -361,6 +547,40 @@ void ALightSwarmController::LightApartment(FString ApartmentId, FString State)
       navigator.clipboard.writeText(pre.textContent);
       btn.textContent = 'Copied!';
       setTimeout(() => btn.textContent = 'Copy', 2000);
+    }
+
+    async function tryEndpoint(url, method) {
+      const resultId = 'result-' + url.replace(/\//g, '-').replace(/^-api-v1-/, '');
+      let resultDiv = document.querySelector(`[id^="result-"][id*="${url.split('/').pop()}"]`);
+      
+      if (!resultDiv) {
+        const btn = event.target;
+        resultDiv = btn.closest('.bg-gray-800').querySelector('[id^="result-"]');
+      }
+      
+      if (resultDiv) {
+        resultDiv.classList.remove('hidden');
+        resultDiv.innerHTML = '<p class="text-gray-400">Loading...</p>';
+      }
+
+      try {
+        const response = await fetch(url, { method });
+        const data = await response.json();
+        
+        if (resultDiv) {
+          resultDiv.innerHTML = `
+            <p class="text-xs text-gray-500 mb-1">Response (${response.status}):</p>
+            <pre class="text-sm ${response.ok ? 'text-green-400' : 'text-red-400'}">${JSON.stringify(data, null, 2)}</pre>
+          `;
+        }
+      } catch (err) {
+        if (resultDiv) {
+          resultDiv.innerHTML = `
+            <p class="text-xs text-gray-500 mb-1">Error:</p>
+            <pre class="text-sm text-red-400">${err.message}</pre>
+          `;
+        }
+      }
     }
   </script>
 </body>

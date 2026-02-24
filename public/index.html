@@ -554,6 +554,171 @@
           </div>
         </div>
       </div>
+
+      <!-- Help Tab -->
+      <div v-if="activeTab === 'help'" class="space-y-6">
+        <div class="bg-gray-800 rounded-lg p-6">
+          <h2 class="text-2xl font-bold mb-6">Quick Start Guide</h2>
+          
+          <div class="grid grid-cols-3 gap-6 mb-8">
+            <div class="bg-gray-700 rounded-lg p-4">
+              <div class="text-3xl mb-2">1</div>
+              <h3 class="font-medium mb-2">Check Connection</h3>
+              <p class="text-sm text-gray-400">Look at the header. Green dot = connected. Yellow = simulation mode (no hardware).</p>
+            </div>
+            <div class="bg-gray-700 rounded-lg p-4">
+              <div class="text-3xl mb-2">2</div>
+              <h3 class="font-medium mb-2">Test a Light</h3>
+              <p class="text-sm text-gray-400">Go to Test Console. Enter address 1, select "Set RGB", set Red=255, click Send.</p>
+            </div>
+            <div class="bg-gray-700 rounded-lg p-4">
+              <div class="text-3xl mb-2">3</div>
+              <h3 class="font-medium mb-2">All Lights On/Off</h3>
+              <p class="text-sm text-gray-400">In Test Console, use the Broadcast Commands section. Click All ON or All OFF.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="font-medium mb-4 text-blue-400">How to Import Apartments</h3>
+            <ol class="space-y-2 text-sm text-gray-300">
+              <li class="flex"><span class="mr-2 text-blue-400">1.</span> Click the <strong>Import</strong> tab</li>
+              <li class="flex"><span class="mr-2 text-blue-400">2.</span> Drag your Excel file (.xlsx) into the upload area</li>
+              <li class="flex"><span class="mr-2 text-blue-400">3.</span> Click <strong>Preview</strong> to check the data</li>
+              <li class="flex"><span class="mr-2 text-blue-400">4.</span> Click <strong>Import</strong> to load the apartments</li>
+              <li class="flex"><span class="mr-2 text-blue-400">5.</span> Go to Mapping Editor to assign light IDs</li>
+            </ol>
+          </div>
+
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="font-medium mb-4 text-green-400">How to Assign Light IDs</h3>
+            <ol class="space-y-2 text-sm text-gray-300">
+              <li class="flex"><span class="mr-2 text-green-400">1.</span> Click the <strong>Mapping Editor</strong> tab</li>
+              <li class="flex"><span class="mr-2 text-green-400">2.</span> Find the apartment in the table</li>
+              <li class="flex"><span class="mr-2 text-green-400">3.</span> Enter the Light ID in the NO.1 column</li>
+              <li class="flex"><span class="mr-2 text-green-400">4.</span> Click <strong>Test</strong> to verify the correct light turns on</li>
+              <li class="flex"><span class="mr-2 text-green-400">5.</span> Click <strong>Save Changes</strong> when done</li>
+            </ol>
+          </div>
+
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="font-medium mb-4 text-yellow-400">Testing Individual Lights</h3>
+            <ol class="space-y-2 text-sm text-gray-300">
+              <li class="flex"><span class="mr-2 text-yellow-400">1.</span> Click the <strong>Test Console</strong> tab</li>
+              <li class="flex"><span class="mr-2 text-yellow-400">2.</span> Enter the light address (0-65535)</li>
+              <li class="flex"><span class="mr-2 text-yellow-400">3.</span> Select a command: On, Off, RGB, etc.</li>
+              <li class="flex"><span class="mr-2 text-yellow-400">4.</span> Click <strong>Send Command</strong></li>
+              <li class="flex"><span class="mr-2 text-yellow-400">5.</span> Watch the physical light on the model</li>
+            </ol>
+          </div>
+
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="font-medium mb-4 text-purple-400">Bulk Auto-Assign IDs</h3>
+            <ol class="space-y-2 text-sm text-gray-300">
+              <li class="flex"><span class="mr-2 text-purple-400">1.</span> Go to <strong>Mapping Editor</strong> tab</li>
+              <li class="flex"><span class="mr-2 text-purple-400">2.</span> Scroll to <strong>Bulk Assignment</strong> section</li>
+              <li class="flex"><span class="mr-2 text-purple-400">3.</span> Enter starting address and increment</li>
+              <li class="flex"><span class="mr-2 text-purple-400">4.</span> Optionally select a specific floor</li>
+              <li class="flex"><span class="mr-2 text-purple-400">5.</span> Click <strong>Apply Auto-Assign</strong></li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="bg-gray-800 rounded-lg p-4">
+          <h3 class="font-medium mb-4 text-red-400">Troubleshooting</h3>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div class="bg-gray-700 rounded p-3">
+              <p class="font-medium text-white mb-1">Light doesn't respond</p>
+              <p class="text-gray-400">Check if the correct Light ID is assigned. Use Test Console with the address to verify.</p>
+            </div>
+            <div class="bg-gray-700 rounded p-3">
+              <p class="font-medium text-white mb-1">Wrong light turns on</p>
+              <p class="text-gray-400">The Light ID mapping is incorrect. Update the address in Mapping Editor.</p>
+            </div>
+            <div class="bg-gray-700 rounded p-3">
+              <p class="font-medium text-white mb-1">"Disconnected" status</p>
+              <p class="text-gray-400">Check USB cable to LightSwarm. Restart the middleware server.</p>
+            </div>
+            <div class="bg-gray-700 rounded p-3">
+              <p class="font-medium text-white mb-1">Import shows 0 apartments</p>
+              <p class="text-gray-400">Check Excel file format. Columns must match expected names exactly.</p>
+            </div>
+            <div class="bg-gray-700 rounded p-3">
+              <p class="font-medium text-white mb-1">Dashboard is blank</p>
+              <p class="text-gray-400">Clear browser cache (Cmd+Shift+R). Check terminal for errors.</p>
+            </div>
+            <div class="bg-gray-700 rounded p-3">
+              <p class="font-medium text-white mb-1">Ambient animation won't stop</p>
+              <p class="text-gray-400">Send a login command via API to stop ambient mode.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-800 rounded-lg p-4">
+          <h3 class="font-medium mb-4">State Colors Reference</h3>
+          <div class="flex space-x-4">
+            <div class="flex items-center space-x-2">
+              <div class="w-6 h-6 rounded bg-green-500"></div>
+              <span class="text-sm">AVAILABLE</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-6 h-6 rounded bg-red-500"></div>
+              <span class="text-sm">SOLD</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-6 h-6 rounded bg-yellow-400"></div>
+              <span class="text-sm">RESERVED</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-6 h-6 rounded bg-orange-500"></div>
+              <span class="text-sm">UNAVAILABLE</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-6 h-6 rounded bg-white border border-gray-600"></div>
+              <span class="text-sm">SELECTED</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-800 rounded-lg p-4">
+          <h3 class="font-medium mb-4">Documentation Links</h3>
+          <div class="grid grid-cols-4 gap-4">
+            <a href="/docs/QUICK_START.md" target="_blank" 
+               class="bg-gray-700 hover:bg-gray-600 rounded p-4 text-center">
+              <div class="text-2xl mb-2">&#128196;</div>
+              <p class="font-medium">Quick Start</p>
+              <p class="text-xs text-gray-400">Get running in 5 minutes</p>
+            </a>
+            <a href="/docs/COMMISSIONING_GUIDE.md" target="_blank"
+               class="bg-gray-700 hover:bg-gray-600 rounded p-4 text-center">
+              <div class="text-2xl mb-2">&#128736;</div>
+              <p class="font-medium">Commissioning</p>
+              <p class="text-xs text-gray-400">Full setup guide</p>
+            </a>
+            <a href="/docs/TESTING_CHECKLIST.md" target="_blank"
+               class="bg-gray-700 hover:bg-gray-600 rounded p-4 text-center">
+              <div class="text-2xl mb-2">&#9745;</div>
+              <p class="font-medium">Testing Checklist</p>
+              <p class="text-xs text-gray-400">Printable test procedure</p>
+            </a>
+            <a href="/docs/HERESCOPE_INTEGRATION.md" target="_blank"
+               class="bg-gray-700 hover:bg-gray-600 rounded p-4 text-center">
+              <div class="text-2xl mb-2">&#128187;</div>
+              <p class="font-medium">API Integration</p>
+              <p class="text-xs text-gray-400">For Herescope developers</p>
+            </a>
+          </div>
+        </div>
+
+        <div class="bg-blue-900 bg-opacity-30 border border-blue-700 rounded-lg p-4">
+          <h3 class="font-medium mb-2 text-blue-400">Need More Help?</h3>
+          <p class="text-sm text-gray-300">
+            Check the full documentation files in the <code class="bg-gray-700 px-1 rounded">middleware/docs/</code> folder.
+            For API testing, use the <strong>API Docs</strong> tab or visit <code class="bg-gray-700 px-1 rounded">/api/docs</code>.
+          </p>
+        </div>
+      </div>
     </main>
   </div>
 
@@ -573,7 +738,8 @@
           { id: 'mapping', name: 'Mapping Editor' },
           { id: 'colors', name: 'Colors' },
           { id: 'settings', name: 'Settings' },
-          { id: 'api', name: 'API Docs' }
+          { id: 'api', name: 'API Docs' },
+          { id: 'help', name: 'Help' }
         ];
 
         const serial = reactive({ isOpen: false, simulationMode: false, port: '', baudRate: 38400 });

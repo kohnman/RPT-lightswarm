@@ -2,6 +2,17 @@
 
 Middleware system for controlling the LightSwarm architectural model lighting system from the Herescope Unreal Engine application.
 
+## Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [Quick Start](docs/QUICK_START.md) | Get running in 5 minutes |
+| [Herescope Integration](docs/HERESCOPE_INTEGRATION.md) | API guide for Herescope developers |
+| [Commissioning Guide](docs/COMMISSIONING_GUIDE.md) | Full setup and configuration walkthrough |
+| [Testing Checklist](docs/TESTING_CHECKLIST.md) | Printable system test procedures |
+
+Access the **Help** tab in the Admin Dashboard for interactive guidance.
+
 ## Overview
 
 This middleware runs on a Raspberry Pi and provides:
