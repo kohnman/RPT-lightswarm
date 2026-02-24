@@ -27,7 +27,7 @@ async function initialize() {
   await database.initialize();
   console.log('      Database initialized');
 
-  const simulationMode = database.settings.get('simulation_mode') === 'true';
+  const simulationMode = process.env.SIMULATION_MODE === 'true' || database.settings.get('simulation_mode') === 'true';
   const comPort = database.settings.get('com_port') || '/dev/ttyUSB0';
   const baudRate = parseInt(database.settings.get('baud_rate') || '38400', 10);
 
@@ -84,8 +84,8 @@ async function initialize() {
   const { server: httpServer, app, io } = await createServer(serialConnection, { simulator });
   server = httpServer;
   
-  const port = parseInt(database.settings.get('api_port') || '3000', 10);
-  server.listen(port, () => {
+  const port = parseInt(process.env.PORT || database.settings.get('api_port') || '3000', 10);
+  server.listen(port, '0.0.0.0', () => {
     console.log(`      API server listening on port ${port}`);
   });
 
