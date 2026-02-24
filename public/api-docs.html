@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>River Park LightSwarm API Documentation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .method-get { background-color: #10b981; }
+    .method-post { background-color: #3b82f6; }
+    .method-put { background-color: #f59e0b; }
+    .method-delete { background-color: #ef4444; }
+    pre { white-space: pre-wrap; word-wrap: break-word; }
+    .copy-btn { opacity: 0; transition: opacity 0.2s; }
+    .code-block:hover .copy-btn { opacity: 1; }
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+  <header class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-bold text-white">River Park LightSwarm API</h1>
+        <p class="text-sm text-gray-400">REST API Documentation v1.0</p>
+      </div>
+      <a href="/" class="text-blue-400 hover:text-blue-300">← Back to Dashboard</a>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto p-6">
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-4">Getting Started</h2>
+      <div class="bg-gray-800 rounded-lg p-4">
+        <p class="mb-4">The River Park LightSwarm Middleware provides a REST API for controlling the architectural model lighting system from the Herescope Unreal application.</p>
+        <div class="bg-gray-900 rounded p-3 font-mono text-sm">
+          <span class="text-gray-400">Base URL:</span> <span class="text-green-400">http://&lt;raspberry-pi-ip&gt;:3000/api/v1</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-4">State Codes</h2>
+      <div class="bg-gray-800 rounded-lg p-4">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-400 border-b border-gray-700">
+              <th class="pb-2">State</th>
+              <th class="pb-2">Default Color</th>
+              <th class="pb-2">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-gray-700"><td class="py-2 font-mono">SOLD</td><td class="py-2"><span class="inline-block w-4 h-4 rounded" style="background:#ff0000"></span> Red</td><td class="py-2">Unit is sold</td></tr>
+            <tr class="border-b border-gray-700"><td class="py-2 font-mono">AVAILABLE</td><td class="py-2"><span class="inline-block w-4 h-4 rounded" style="background:#00ff00"></span> Green</td><td class="py-2">Unit is available for sale</td></tr>
+            <tr class="border-b border-gray-700"><td class="py-2 font-mono">UNAVAILABLE</td><td class="py-2"><span class="inline-block w-4 h-4 rounded" style="background:#b45000"></span> Orange</td><td class="py-2">Unit is not available</td></tr>
+            <tr class="border-b border-gray-700"><td class="py-2 font-mono">SELECTED</td><td class="py-2"><span class="inline-block w-4 h-4 rounded" style="background:#ffffff"></span> White</td><td class="py-2">Unit is currently selected</td></tr>
+            <tr><td class="py-2 font-mono">RESERVED</td><td class="py-2"><span class="inline-block w-4 h-4 rounded" style="background:#ffff00"></span> Yellow</td><td class="py-2">Unit is reserved</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-4">Session Endpoints</h2>
+      
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-post px-2 py-1 rounded text-xs font-mono mr-3">POST</span>
+          <span class="font-mono flex-1">/session/login</span>
+          <span class="text-gray-400 text-sm">Agent logs in</span>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Stops ambient animation and fades lights from top floor to bottom sequentially.</p>
+          <div class="code-block relative bg-gray-900 rounded p-3 mb-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Request:</p>
+            <pre class="text-sm text-green-400">{
+  "agentId": "agent-001"  // Optional agent identifier
+}</pre>
+          </div>
+          <div class="code-block relative bg-gray-900 rounded p-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Response:</p>
+            <pre class="text-sm text-blue-400">{
+  "success": true,
+  "message": "Login successful, ambient animation stopped",
+  "agentId": "agent-001"
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-post px-2 py-1 rounded text-xs font-mono mr-3">POST</span>
+          <span class="font-mono flex-1">/session/logout</span>
+          <span class="text-gray-400 text-sm">Agent logs out</span>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Starts the ambient animation loop.</p>
+          <div class="code-block relative bg-gray-900 rounded p-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Request:</p>
+            <pre class="text-sm text-green-400">{
+  "agentId": "agent-001"
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-4">Apartment Endpoints</h2>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-put px-2 py-1 rounded text-xs font-mono mr-3">PUT</span>
+          <span class="font-mono flex-1">/apartments/{id}</span>
+          <span class="text-gray-400 text-sm">Light single apartment</span>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Set lighting for a specific apartment with state color.</p>
+          <div class="code-block relative bg-gray-900 rounded p-3 mb-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Request:</p>
+            <pre class="text-sm text-green-400">{
+  "state": "AVAILABLE",      // State name (uses configured color)
+  "intensity": 200,          // Optional: 0-255
+  "fadeTime": 500,           // Optional: milliseconds
+  "rgb": {                   // Optional: override state color
+    "r": 0, "g": 255, "b": 0
+  }
+}</pre>
+          </div>
+          <div class="code-block relative bg-gray-900 rounded p-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Response:</p>
+            <pre class="text-sm text-blue-400">{
+  "success": true,
+  "id": "T1-L23-01",
+  "address": 1234,
+  "state": "AVAILABLE",
+  "color": { "r": 0, "g": 200, "b": 0 },
+  "fadeTime": 500
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-put px-2 py-1 rounded text-xs font-mono mr-3">PUT</span>
+          <span class="font-mono flex-1">/apartments/batch</span>
+          <span class="text-gray-400 text-sm">Light multiple apartments</span>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Set lighting for multiple apartments at once.</p>
+          <div class="code-block relative bg-gray-900 rounded p-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Request (simple - same state for all):</p>
+            <pre class="text-sm text-green-400">{
+  "apartments": ["T1-L23-01", "T1-L23-02", "T1-L24-01"],
+  "state": "SOLD",
+  "fadeTime": 500
+}</pre>
+          </div>
+          <div class="code-block relative bg-gray-900 rounded p-3 mt-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Request (advanced - individual states):</p>
+            <pre class="text-sm text-green-400">{
+  "apartments": [
+    { "id": "T1-L23-01", "state": "SOLD" },
+    { "id": "T1-L23-02", "state": "AVAILABLE" },
+    { "id": "T1-L24-01", "state": "RESERVED" }
+  ],
+  "fadeTime": 500
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-post px-2 py-1 rounded text-xs font-mono mr-3">POST</span>
+          <span class="font-mono flex-1">/apartments/all/off</span>
+          <span class="text-gray-400 text-sm">Turn off all apartments</span>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400">Turns off all apartment lights using broadcast command.</p>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-post px-2 py-1 rounded text-xs font-mono mr-3">POST</span>
+          <span class="font-mono flex-1">/apartments/all/on</span>
+          <span class="text-gray-400 text-sm">Turn on all apartments</span>
+        </div>
+        <div class="p-4">
+          <div class="code-block relative bg-gray-900 rounded p-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Request:</p>
+            <pre class="text-sm text-green-400">{
+  "intensity": 200  // Optional: brightness level
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-4">Floorplate Endpoints</h2>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-put px-2 py-1 rounded text-xs font-mono mr-3">PUT</span>
+          <span class="font-mono flex-1">/floorplates/{id}</span>
+          <span class="text-gray-400 text-sm">Light entire floorplate</span>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Set lighting for all apartments in a floorplate group.</p>
+          <div class="code-block relative bg-gray-900 rounded p-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Request:</p>
+            <pre class="text-sm text-green-400">{
+  "state": "SELECTED",
+  "intensity": 255,
+  "fadeTime": 300
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-put px-2 py-1 rounded text-xs font-mono mr-3">PUT</span>
+          <span class="font-mono flex-1">/floorplates/floors/batch</span>
+          <span class="text-gray-400 text-sm">Light multiple floors</span>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Light all apartments on specified floors.</p>
+          <div class="code-block relative bg-gray-900 rounded p-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Request:</p>
+            <pre class="text-sm text-green-400">{
+  "floors": [23, 24, 25],
+  "tower": "T1",           // Optional
+  "state": "AVAILABLE",
+  "fadeTime": 500
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-4">Amenity Endpoints</h2>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-put px-2 py-1 rounded text-xs font-mono mr-3">PUT</span>
+          <span class="font-mono flex-1">/amenities/{id}</span>
+          <span class="text-gray-400 text-sm">Light single amenity</span>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Set lighting for a specific amenity (gym, cinema, lounge, etc).</p>
+          <div class="code-block relative bg-gray-900 rounded p-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Request:</p>
+            <pre class="text-sm text-green-400">{
+  "state": "SELECTED",
+  "intensity": 255,
+  "fadeTime": 300
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-put px-2 py-1 rounded text-xs font-mono mr-3">PUT</span>
+          <span class="font-mono flex-1">/amenities/floor/{floorId}</span>
+          <span class="text-gray-400 text-sm">Light floor amenities</span>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Set lighting for all amenities on a specific floor.</p>
+          <div class="code-block relative bg-gray-900 rounded p-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Request:</p>
+            <pre class="text-sm text-green-400">{
+  "tower": "T1",         // Optional
+  "state": "SELECTED",
+  "intensity": 200,
+  "fadeTime": 500
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-4">Status Endpoint</h2>
+
+      <div class="bg-gray-800 rounded-lg mb-4 overflow-hidden">
+        <div class="flex items-center p-3 bg-gray-700">
+          <span class="method-get px-2 py-1 rounded text-xs font-mono mr-3">GET</span>
+          <span class="font-mono flex-1">/status</span>
+          <span class="text-gray-400 text-sm">Get system status</span>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-400 mb-3">Returns current system status including serial connection and statistics.</p>
+          <div class="code-block relative bg-gray-900 rounded p-3">
+            <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+            <p class="text-xs text-gray-500 mb-1">Response:</p>
+            <pre class="text-sm text-blue-400">{
+  "status": "ok",
+  "version": "1.0.0",
+  "uptime": 3600,
+  "serial": {
+    "isOpen": true,
+    "simulationMode": false,
+    "port": "/dev/ttyUSB0",
+    "baudRate": 38400
+  },
+  "timestamp": "2026-02-24T10:00:00.000Z"
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-4">Example Integration (Unreal/C++)</h2>
+      <div class="bg-gray-800 rounded-lg p-4">
+        <div class="code-block relative bg-gray-900 rounded p-3">
+          <button class="copy-btn absolute top-2 right-2 text-xs bg-gray-700 px-2 py-1 rounded" onclick="copyCode(this)">Copy</button>
+          <pre class="text-sm text-purple-400">// Example: Light apartment when selected in Herescope
+void ALightSwarmController::LightApartment(FString ApartmentId, FString State)
+{
+    TSharedRef&lt;IHttpRequest&gt; Request = FHttpModule::Get().CreateRequest();
+    Request->SetURL(FString::Printf(TEXT("http://%s:3000/api/v1/apartments/%s"), 
+        *MiddlewareIP, *ApartmentId));
+    Request->SetVerb(TEXT("PUT"));
+    Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+    
+    FString JsonBody = FString::Printf(
+        TEXT("{\"state\":\"%s\",\"fadeTime\":500}"), *State);
+    Request->SetContentAsString(JsonBody);
+    
+    Request->OnProcessRequestComplete().BindUObject(
+        this, &ALightSwarmController::OnResponseReceived);
+    Request->ProcessRequest();
+}</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function copyCode(btn) {
+      const pre = btn.parentElement.querySelector('pre');
+      navigator.clipboard.writeText(pre.textContent);
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    }
+  </script>
+</body>
+</html>

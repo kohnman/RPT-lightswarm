@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>River Park LightSwarm Control</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    [v-cloak] { display: none; }
+    .log-entry { font-family: 'Monaco', 'Menlo', monospace; font-size: 12px; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .status-connected { background-color: #10b981; }
+    .status-disconnected { background-color: #ef4444; }
+    .status-simulation { background-color: #f59e0b; }
+    .color-preview { width: 40px; height: 40px; border-radius: 8px; border: 2px solid #374151; }
+    .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+  <div id="app" v-cloak>
+    <header class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-xl font-bold text-white">River Park LightSwarm</h1>
+          <span class="text-sm text-gray-400">v1.0.0</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <div class="flex items-center space-x-2">
+            <span :class="['status-dot', connectionStatus]"></span>
+            <span class="text-sm">{{ statusText }}</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="text-sm text-gray-400">Mode:</span>
+            <span :class="['px-2 py-1 rounded text-xs font-medium', modeClass]">{{ currentMode }}</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="bg-gray-800 border-b border-gray-700 px-6">
+      <div class="flex space-x-6">
+        <button v-for="tab in tabs" :key="tab.id"
+                @click="activeTab = tab.id"
+                :class="['py-3 px-2 text-sm font-medium', activeTab === tab.id ? 'tab-active' : 'text-gray-400 hover:text-gray-200']">
+          {{ tab.name }}
+        </button>
+      </div>
+    </nav>
+
+    <main class="p-6">
+      <!-- Dashboard Tab -->
+      <div v-if="activeTab === 'dashboard'" class="space-y-6">
+        <div class="grid grid-cols-4 gap-4">
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="text-sm text-gray-400 mb-1">Serial Status</h3>
+            <p class="text-2xl font-bold" :class="serial.isOpen ? 'text-green-400' : 'text-red-400'">
+              {{ serial.isOpen ? 'Connected' : 'Disconnected' }}
+            </p>
+            <p class="text-xs text-gray-500 mt-1">{{ serial.port }} @ {{ serial.baudRate }}</p>
+          </div>
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="text-sm text-gray-400 mb-1">Simulation Mode</h3>
+            <p class="text-2xl font-bold" :class="serial.simulationMode ? 'text-yellow-400' : 'text-gray-400'">
+              {{ serial.simulationMode ? 'ENABLED' : 'Disabled' }}
+            </p>
+          </div>
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="text-sm text-gray-400 mb-1">Commands (24h)</h3>
+            <p class="text-2xl font-bold text-blue-400">{{ stats.total || 0 }}</p>
+            <p class="text-xs text-gray-500 mt-1">{{ stats.successful || 0 }} success / {{ stats.failed || 0 }} failed</p>
+          </div>
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="text-sm text-gray-400 mb-1">Uptime</h3>
+            <p class="text-2xl font-bold text-purple-400">{{ formatUptime(uptime) }}</p>
+          </div>
+        </div>
+
+        <div class="bg-gray-800 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-medium">Recent Commands</h3>
+            <button @click="clearLogs" class="text-sm text-gray-400 hover:text-white">Clear</button>
+          </div>
+          <div class="h-64 overflow-y-auto space-y-1 bg-gray-900 rounded p-2">
+            <div v-for="log in logs" :key="log.id" class="log-entry px-2 py-1 hover:bg-gray-800 rounded">
+              <span class="text-gray-500">{{ formatTime(log.timestamp) }}</span>
+              <span :class="log.success ? 'text-green-400' : 'text-red-400'" class="mx-2">●</span>
+              <span class="text-blue-400">{{ log.command_type || log.commandType }}</span>
+              <span v-if="log.target_id" class="text-gray-400 ml-2">→ {{ log.target_id }}</span>
+            </div>
+            <div v-if="logs.length === 0" class="text-gray-500 text-center py-4">No logs yet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test Console Tab -->
+      <div v-if="activeTab === 'test'" class="space-y-6">
+        <div class="grid grid-cols-2 gap-6">
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="font-medium mb-4">Quick Test</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Address</label>
+                <input v-model.number="test.address" type="number" min="0" max="65535"
+                       class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Command</label>
+                <select v-model="test.command" class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+                  <option value="on">Turn On</option>
+                  <option value="off">Turn Off</option>
+                  <option value="level">Set Level</option>
+                  <option value="rgb">Set RGB</option>
+                  <option value="fade">Fade</option>
+                  <option value="rgb_fade">RGB Fade</option>
+                </select>
+              </div>
+              <div v-if="['level', 'fade'].includes(test.command)">
+                <label class="block text-sm text-gray-400 mb-1">Level (0-255)</label>
+                <input v-model.number="test.level" type="range" min="0" max="255" class="w-full">
+                <span class="text-sm text-gray-400">{{ test.level }}</span>
+              </div>
+              <div v-if="['rgb', 'rgb_fade'].includes(test.command)" class="grid grid-cols-3 gap-2">
+                <div>
+                  <label class="block text-sm text-gray-400 mb-1">Red</label>
+                  <input v-model.number="test.red" type="number" min="0" max="255"
+                         class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-400 mb-1">Green</label>
+                  <input v-model.number="test.green" type="number" min="0" max="255"
+                         class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-400 mb-1">Blue</label>
+                  <input v-model.number="test.blue" type="number" min="0" max="255"
+                         class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+                </div>
+              </div>
+              <div v-if="['fade', 'rgb_fade'].includes(test.command)">
+                <label class="block text-sm text-gray-400 mb-1">Fade Time (ms)</label>
+                <input v-model.number="test.fadeTime" type="number" min="0" max="10000"
+                       class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+              </div>
+              <button @click="sendTestCommand" 
+                      class="w-full bg-blue-600 hover:bg-blue-700 rounded py-2 font-medium">
+                Send Command
+              </button>
+              <div v-if="test.result" class="mt-2 p-2 bg-gray-900 rounded text-sm">
+                <p class="text-gray-400">Packet: <span class="text-green-400 font-mono">{{ test.result.packetHex }}</span></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="font-medium mb-4">Broadcast Commands</h3>
+            <div class="grid grid-cols-2 gap-3">
+              <button @click="broadcast('on')" 
+                      class="bg-green-600 hover:bg-green-700 rounded py-3 font-medium">
+                All ON
+              </button>
+              <button @click="broadcast('off')" 
+                      class="bg-red-600 hover:bg-red-700 rounded py-3 font-medium">
+                All OFF
+              </button>
+            </div>
+            <div class="mt-4">
+              <label class="block text-sm text-gray-400 mb-1">Broadcast Level</label>
+              <div class="flex space-x-2">
+                <input v-model.number="broadcastLevel" type="range" min="0" max="255" class="flex-1">
+                <span class="text-sm w-12 text-right">{{ broadcastLevel }}</span>
+              </div>
+              <button @click="broadcast('level', broadcastLevel)" 
+                      class="w-full mt-2 bg-blue-600 hover:bg-blue-700 rounded py-2 font-medium">
+                Set All Level
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Import Tab -->
+      <div v-if="activeTab === 'import'" class="space-y-6">
+        <div class="grid grid-cols-2 gap-6">
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="font-medium mb-4">Import Apartment Matrix (Excel)</h3>
+            <div class="space-y-4">
+              <div class="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center"
+                   @dragover.prevent @drop.prevent="handleFileDrop">
+                <input type="file" ref="fileInput" @change="handleFileSelect" accept=".xlsx,.xls" class="hidden">
+                <div v-if="!importFile">
+                  <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <p class="mt-2 text-gray-400">Drag and drop Excel file here or</p>
+                  <button @click="$refs.fileInput.click()" class="mt-2 text-blue-400 hover:text-blue-300">
+                    Browse files
+                  </button>
+                </div>
+                <div v-else>
+                  <p class="text-green-400">{{ importFile.name }}</p>
+                  <p class="text-sm text-gray-400">{{ (importFile.size / 1024).toFixed(1) }} KB</p>
+                  <button @click="clearImportFile" class="mt-2 text-red-400 hover:text-red-300 text-sm">Remove</button>
+                </div>
+              </div>
+              
+              <div class="flex items-center space-x-2">
+                <input type="checkbox" v-model="importOptions.clearExisting" id="clearExisting" class="rounded">
+                <label for="clearExisting" class="text-sm text-gray-400">Clear existing apartments before import</label>
+              </div>
+              
+              <div class="flex space-x-2">
+                <button @click="validateImportFile" :disabled="!importFile || importLoading"
+                        class="flex-1 bg-gray-600 hover:bg-gray-500 disabled:opacity-50 rounded py-2 font-medium">
+                  Preview
+                </button>
+                <button @click="executeImport" :disabled="!importFile || importLoading"
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded py-2 font-medium">
+                  {{ importLoading ? 'Importing...' : 'Import' }}
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="font-medium mb-4">Import Statistics</h3>
+            <div v-if="importStats" class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-gray-400">Total Apartments:</span>
+                <span class="font-medium">{{ importStats.totalApartments || importStats.total_apartments || 0 }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Floors:</span>
+                <span class="font-medium">{{ (importStats.floors || []).length }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Unit Types:</span>
+                <span class="font-medium">{{ (importStats.unitTypes || []).join(', ') || 'N/A' }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">With Light IDs:</span>
+                <span class="font-medium text-green-400">{{ importStats.apartmentsWithLights || importStats.assigned_lights || 0 }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Without Light IDs:</span>
+                <span class="font-medium text-yellow-400">{{ importStats.apartmentsWithoutLights || 0 }}</span>
+              </div>
+            </div>
+            <div v-else class="text-gray-500 text-center py-8">
+              Upload a file to see statistics
+            </div>
+          </div>
+        </div>
+        
+        <div v-if="importPreview.length > 0" class="bg-gray-800 rounded-lg p-4">
+          <h3 class="font-medium mb-4">Preview (first 20 rows)</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-gray-400 border-b border-gray-700">
+                  <th class="pb-2 pr-4">Plot #</th>
+                  <th class="pb-2 pr-4">Apartment</th>
+                  <th class="pb-2 pr-4">Floor</th>
+                  <th class="pb-2 pr-4">Unit Type</th>
+                  <th class="pb-2 pr-4">Position</th>
+                  <th class="pb-2 pr-4">Light ID 1</th>
+                  <th class="pb-2 pr-4">Light ID 2</th>
+                  <th class="pb-2 pr-4">Light ID 3</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in importPreview" :key="row.id" class="border-b border-gray-700">
+                  <td class="py-2 pr-4 font-mono">{{ row.plotNumber }}</td>
+                  <td class="py-2 pr-4">{{ row.name }}</td>
+                  <td class="py-2 pr-4">{{ row.floor }}</td>
+                  <td class="py-2 pr-4">{{ row.unitType }}</td>
+                  <td class="py-2 pr-4">{{ row.unitPosition }}</td>
+                  <td class="py-2 pr-4 font-mono">{{ row.lightIds?.[0] || '-' }}</td>
+                  <td class="py-2 pr-4 font-mono">{{ row.lightIds?.[1] || '-' }}</td>
+                  <td class="py-2 pr-4 font-mono">{{ row.lightIds?.[2] || '-' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div v-if="importResult" class="bg-gray-800 rounded-lg p-4">
+          <h3 class="font-medium mb-4" :class="importResult.success ? 'text-green-400' : 'text-red-400'">
+            {{ importResult.success ? 'Import Successful' : 'Import Failed' }}
+          </h3>
+          <div class="grid grid-cols-4 gap-4 text-center">
+            <div class="bg-gray-700 rounded p-3">
+              <p class="text-2xl font-bold text-blue-400">{{ importResult.imported || 0 }}</p>
+              <p class="text-sm text-gray-400">Imported</p>
+            </div>
+            <div class="bg-gray-700 rounded p-3">
+              <p class="text-2xl font-bold text-yellow-400">{{ importResult.updated || 0 }}</p>
+              <p class="text-sm text-gray-400">Updated</p>
+            </div>
+            <div class="bg-gray-700 rounded p-3">
+              <p class="text-2xl font-bold text-green-400">{{ importResult.floorplatesCreated || 0 }}</p>
+              <p class="text-sm text-gray-400">Floorplates</p>
+            </div>
+            <div class="bg-gray-700 rounded p-3">
+              <p class="text-2xl font-bold text-purple-400">{{ importResult.lightsAssigned || 0 }}</p>
+              <p class="text-sm text-gray-400">Lights Assigned</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Colors Tab -->
+      <div v-if="activeTab === 'colors'" class="space-y-6">
+        <div class="bg-gray-800 rounded-lg p-4">
+          <h3 class="font-medium mb-4">State Colors</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div v-for="color in stateColors" :key="color.state_name" 
+                 class="flex items-center space-x-4 p-3 bg-gray-700 rounded-lg">
+              <div class="color-preview" 
+                   :style="{backgroundColor: `rgb(${color.red},${color.green},${color.blue})`}"></div>
+              <div class="flex-1">
+                <p class="font-medium">{{ color.state_name }}</p>
+                <p class="text-sm text-gray-400">RGB({{ color.red }}, {{ color.green }}, {{ color.blue }})</p>
+              </div>
+              <button @click="editColor(color)" class="text-blue-400 hover:text-blue-300 text-sm">Edit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div v-if="activeTab === 'settings'" class="space-y-6">
+        <div class="grid grid-cols-2 gap-6">
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="font-medium mb-4">Serial Connection</h3>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">COM Port</label>
+                <input v-model="settings.com_port" type="text"
+                       class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Baud Rate</label>
+                <select v-model="settings.baud_rate" class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+                  <option value="9600">9600</option>
+                  <option value="19200">19200</option>
+                  <option value="38400">38400</option>
+                  <option value="57600">57600</option>
+                  <option value="115200">115200</option>
+                </select>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm">Simulation Mode</span>
+                <button @click="toggleSimulation" 
+                        :class="['px-3 py-1 rounded text-sm', settings.simulation_mode === 'true' ? 'bg-yellow-600' : 'bg-gray-600']">
+                  {{ settings.simulation_mode === 'true' ? 'Enabled' : 'Disabled' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="font-medium mb-4">Lighting Defaults</h3>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Default Fade Time (ms)</label>
+                <input v-model="settings.default_fade_time_ms" type="number"
+                       class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Default Intensity</label>
+                <input v-model="settings.default_intensity" type="number" min="0" max="255"
+                       class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Login Fade Delay (ms)</label>
+                <input v-model="settings.login_fade_delay_ms" type="number"
+                       class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <button @click="saveSettings" class="bg-blue-600 hover:bg-blue-700 rounded px-6 py-2 font-medium">
+            Save Settings
+          </button>
+        </div>
+      </div>
+
+      <!-- Mapping Editor Tab -->
+      <div v-if="activeTab === 'mapping'" class="space-y-6">
+        <div class="bg-gray-800 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-4">
+              <h3 class="font-medium">Light Mapping Editor</h3>
+              <select v-model="selectedFloor" @change="loadFloorApartments" 
+                      class="bg-gray-700 rounded px-3 py-1 text-sm">
+                <option :value="null">All Floors</option>
+                <option v-for="f in floors" :key="f.floor" :value="f.floor">
+                  Level {{ f.floor }} ({{ f.count }} units)
+                </option>
+              </select>
+            </div>
+            <div class="flex space-x-2">
+              <button @click="exportMapping" class="bg-gray-600 hover:bg-gray-500 rounded px-3 py-1 text-sm">
+                Export Excel
+              </button>
+              <button @click="saveMappingChanges" :disabled="!hasUnsavedChanges"
+                      :class="['rounded px-3 py-1 text-sm', hasUnsavedChanges ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 opacity-50']">
+                Save Changes
+              </button>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-4 gap-4 mb-4 text-sm">
+            <div class="bg-gray-700 rounded p-3">
+              <p class="text-gray-400">Total Apartments</p>
+              <p class="text-xl font-bold">{{ apartmentStats.total_apartments || apartments.length }}</p>
+            </div>
+            <div class="bg-gray-700 rounded p-3">
+              <p class="text-gray-400">With Light IDs</p>
+              <p class="text-xl font-bold text-green-400">{{ apartmentStats.assigned_lights || 0 }}</p>
+            </div>
+            <div class="bg-gray-700 rounded p-3">
+              <p class="text-gray-400">Without Light IDs</p>
+              <p class="text-xl font-bold text-yellow-400">{{ (apartmentStats.total_apartments || apartments.length) - (assignedCount || 0) }}</p>
+            </div>
+            <div class="bg-gray-700 rounded p-3">
+              <p class="text-gray-400">Floors</p>
+              <p class="text-xl font-bold text-blue-400">{{ apartmentStats.total_floors || floors.length }}</p>
+            </div>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-gray-400 border-b border-gray-700">
+                  <th class="pb-2 pr-2">Plot</th>
+                  <th class="pb-2 pr-2">Name</th>
+                  <th class="pb-2 pr-2">Floor</th>
+                  <th class="pb-2 pr-2">Type</th>
+                  <th class="pb-2 pr-2">Pos</th>
+                  <th class="pb-2 pr-2">Light ID 1</th>
+                  <th class="pb-2 pr-2">Light ID 2</th>
+                  <th class="pb-2 pr-2">Light ID 3</th>
+                  <th class="pb-2 pr-2">Status</th>
+                  <th class="pb-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="apt in displayedApartments" :key="apt.id" 
+                    :class="['border-b border-gray-700', editingApt === apt.id ? 'bg-gray-700' : '']">
+                  <td class="py-2 pr-2 font-mono text-blue-400">{{ apt.plot_number }}</td>
+                  <td class="py-2 pr-2">{{ apt.name }}</td>
+                  <td class="py-2 pr-2">{{ apt.floor }}</td>
+                  <td class="py-2 pr-2 text-xs">{{ apt.unit_type }}</td>
+                  <td class="py-2 pr-2">{{ apt.unit_position }}</td>
+                  <td class="py-2 pr-2">
+                    <input :value="getLightEdit(apt.id, 0)" type="number" min="0" max="65535"
+                           @input="setLightEdit(apt.id, 0, $event.target.value)"
+                           class="w-20 bg-gray-700 rounded px-2 py-1 text-center font-mono text-sm"
+                           placeholder="-">
+                  </td>
+                  <td class="py-2 pr-2">
+                    <input :value="getLightEdit(apt.id, 1)" type="number" min="0" max="65535"
+                           @input="setLightEdit(apt.id, 1, $event.target.value)"
+                           class="w-20 bg-gray-700 rounded px-2 py-1 text-center font-mono text-sm"
+                           placeholder="-">
+                  </td>
+                  <td class="py-2 pr-2">
+                    <input :value="getLightEdit(apt.id, 2)" type="number" min="0" max="65535"
+                           @input="setLightEdit(apt.id, 2, $event.target.value)"
+                           class="w-20 bg-gray-700 rounded px-2 py-1 text-center font-mono text-sm"
+                           placeholder="-">
+                  </td>
+                  <td class="py-2 pr-2">
+                    <span v-if="hasLights(apt.id)" class="text-green-400 text-xs">✓ Assigned</span>
+                    <span v-else class="text-yellow-400 text-xs">○ Needs ID</span>
+                  </td>
+                  <td class="py-2">
+                    <button @click="testApartment(apt)" class="text-blue-400 hover:text-blue-300 text-xs mr-2">Test</button>
+                    <button @click="copyLightIds(apt)" class="text-gray-400 hover:text-gray-300 text-xs">Copy</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div v-if="displayedApartments.length === 0" class="text-center py-8 text-gray-500">
+            No apartments found. Import data first.
+          </div>
+        </div>
+        
+        <div class="bg-gray-800 rounded-lg p-4">
+          <h3 class="font-medium mb-4">Bulk Assignment</h3>
+          <div class="grid grid-cols-4 gap-4">
+            <div>
+              <label class="block text-sm text-gray-400 mb-1">Start Address</label>
+              <input v-model.number="bulkAssign.startAddress" type="number" min="0"
+                     class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-1">Increment</label>
+              <input v-model.number="bulkAssign.increment" type="number" min="1"
+                     class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-1">Floor (optional)</label>
+              <select v-model="bulkAssign.floor" class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+                <option :value="null">All unassigned</option>
+                <option v-for="f in floors" :key="f.floor" :value="f.floor">Level {{ f.floor }}</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <button @click="applyBulkAssignment" 
+                      class="w-full bg-purple-600 hover:bg-purple-700 rounded py-2 font-medium">
+                Apply Auto-Assign
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- API Docs Tab -->
+      <div v-if="activeTab === 'api'" class="space-y-6">
+        <div class="bg-gray-800 rounded-lg p-4">
+          <h3 class="font-medium mb-4">API Documentation</h3>
+          <p class="text-gray-400 mb-4">Base URL: <code class="bg-gray-700 px-2 py-1 rounded">http://{{ host }}:3000/api/v1</code></p>
+          
+          <div class="space-y-4">
+            <div v-for="endpoint in apiEndpoints" :key="endpoint.path" 
+                 class="border border-gray-700 rounded-lg overflow-hidden">
+              <div class="flex items-center p-3 bg-gray-700 cursor-pointer" @click="endpoint.expanded = !endpoint.expanded">
+                <span :class="['px-2 py-1 rounded text-xs font-mono mr-3', methodClass(endpoint.method)]">
+                  {{ endpoint.method }}
+                </span>
+                <span class="font-mono flex-1">{{ endpoint.path }}</span>
+                <span class="text-gray-400 text-sm">{{ endpoint.description }}</span>
+              </div>
+              <div v-if="endpoint.expanded" class="p-4 bg-gray-900 text-sm">
+                <p class="text-gray-400 mb-2">{{ endpoint.details }}</p>
+                <div v-if="endpoint.body" class="mt-3">
+                  <p class="text-gray-400 mb-1">Request Body:</p>
+                  <pre class="bg-gray-800 p-2 rounded overflow-x-auto">{{ endpoint.body }}</pre>
+                </div>
+                <div v-if="endpoint.response" class="mt-3">
+                  <p class="text-gray-400 mb-1">Response:</p>
+                  <pre class="bg-gray-800 p-2 rounded overflow-x-auto">{{ endpoint.response }}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const { createApp, ref, reactive, computed, onMounted, onUnmounted } = Vue;
+
+    createApp({
+      setup() {
+        const host = window.location.hostname;
+        const socket = io();
+        
+        const activeTab = ref('dashboard');
+        const tabs = [
+          { id: 'dashboard', name: 'Dashboard' },
+          { id: 'test', name: 'Test Console' },
+          { id: 'import', name: 'Import' },
+          { id: 'mapping', name: 'Mapping Editor' },
+          { id: 'colors', name: 'Colors' },
+          { id: 'settings', name: 'Settings' },
+          { id: 'api', name: 'API Docs' }
+        ];
+
+        const serial = reactive({ isOpen: false, simulationMode: false, port: '', baudRate: 38400 });
+        const stats = reactive({ total: 0, successful: 0, failed: 0 });
+        const uptime = ref(0);
+        const logs = ref([]);
+        const stateColors = ref([]);
+        const settings = reactive({});
+        const apartments = ref([]);
+        
+        const importFile = ref(null);
+        const importLoading = ref(false);
+        const importOptions = reactive({ clearExisting: false });
+        const importStats = ref(null);
+        const importPreview = ref([]);
+        const importResult = ref(null);
+        
+        const floors = ref([]);
+        const selectedFloor = ref(null);
+        const apartmentStats = reactive({});
+        const lightsMap = ref({});
+        const editedLights = reactive({});
+        const changedApartments = ref(new Set());
+        const editingApt = ref(null);
+        const bulkAssign = reactive({ startAddress: 1, increment: 1, floor: null });
+        
+        const displayedApartments = computed(() => {
+          if (selectedFloor.value === null) {
+            return apartments.value;
+          }
+          return apartments.value.filter(apt => apt.floor === selectedFloor.value);
+        });
+        
+        const hasUnsavedChanges = computed(() => changedApartments.value.size > 0);
+        const assignedCount = computed(() => {
+          return apartments.value.filter(apt => hasLights(apt.id)).length;
+        });
+
+        const test = reactive({
+          address: 0,
+          command: 'on',
+          level: 255,
+          red: 255,
+          green: 255,
+          blue: 255,
+          fadeTime: 500,
+          result: null
+        });
+        const broadcastLevel = ref(200);
+
+        const connectionStatus = computed(() => {
+          if (serial.simulationMode) return 'status-simulation';
+          return serial.isOpen ? 'status-connected' : 'status-disconnected';
+        });
+
+        const statusText = computed(() => {
+          if (serial.simulationMode) return 'Simulation';
+          return serial.isOpen ? 'Connected' : 'Disconnected';
+        });
+
+        const currentMode = computed(() => serial.simulationMode ? 'Simulation' : 'Live');
+        const modeClass = computed(() => serial.simulationMode ? 'bg-yellow-600' : 'bg-green-600');
+
+        const apiEndpoints = ref([
+          { method: 'POST', path: '/session/login', description: 'Agent login', expanded: false,
+            details: 'Stop ambient animation, fade lights from top to bottom',
+            body: '{ "agentId": "agent-001" }',
+            response: '{ "success": true, "message": "Login successful" }' },
+          { method: 'POST', path: '/session/logout', description: 'Agent logout', expanded: false,
+            details: 'Start ambient animation loop',
+            body: '{ "agentId": "agent-001" }' },
+          { method: 'PUT', path: '/apartments/:id', description: 'Light apartment', expanded: false,
+            details: 'Set lighting for a single apartment',
+            body: '{ "state": "AVAILABLE", "intensity": 200, "fadeTime": 500 }' },
+          { method: 'PUT', path: '/apartments/batch', description: 'Light multiple apartments', expanded: false,
+            details: 'Set lighting for multiple apartments at once',
+            body: '{ "apartments": ["apt-001", "apt-002"], "state": "SOLD" }' },
+          { method: 'PUT', path: '/floorplates/:id', description: 'Light floorplate', expanded: false,
+            details: 'Set lighting for all apartments in a floorplate' },
+          { method: 'PUT', path: '/amenities/:id', description: 'Light amenity', expanded: false,
+            details: 'Set lighting for a single amenity' },
+          { method: 'PUT', path: '/amenities/floor/:floorId', description: 'Light floor amenities', expanded: false,
+            details: 'Set lighting for all amenities on a floor' },
+          { method: 'POST', path: '/apartments/all/off', description: 'All off', expanded: false },
+          { method: 'POST', path: '/apartments/all/on', description: 'All on', expanded: false },
+          { method: 'GET', path: '/status', description: 'System status', expanded: false }
+        ]);
+
+        async function fetchStatus() {
+          try {
+            const res = await fetch('/api/v1/status');
+            const data = await res.json();
+            Object.assign(serial, data.serial);
+            Object.assign(stats, data.stats || {});
+            uptime.value = data.uptime;
+          } catch (err) {
+            console.error('Failed to fetch status:', err);
+          }
+        }
+
+        async function fetchColors() {
+          try {
+            const res = await fetch('/api/v1/admin/colors');
+            const data = await res.json();
+            stateColors.value = data.colors;
+          } catch (err) {
+            console.error('Failed to fetch colors:', err);
+          }
+        }
+
+        async function fetchSettings() {
+          try {
+            const res = await fetch('/api/v1/admin/settings');
+            const data = await res.json();
+            Object.assign(settings, data);
+          } catch (err) {
+            console.error('Failed to fetch settings:', err);
+          }
+        }
+
+        async function fetchApartments() {
+          try {
+            const res = await fetch('/api/v1/apartments');
+            const data = await res.json();
+            apartments.value = data.apartments;
+            
+            for (const apt of data.apartments) {
+              if (!editedLights[apt.id]) {
+                editedLights[apt.id] = [
+                  apt.lightswarm_address || null,
+                  null,
+                  null
+                ];
+              }
+            }
+          } catch (err) {
+            console.error('Failed to fetch apartments:', err);
+          }
+        }
+
+        async function sendTestCommand() {
+          try {
+            const res = await fetch('/api/v1/admin/test/address', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(test)
+            });
+            test.result = await res.json();
+          } catch (err) {
+            console.error('Failed to send test command:', err);
+          }
+        }
+
+        async function broadcast(command, level) {
+          try {
+            await fetch('/api/v1/admin/test/broadcast', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ command, level })
+            });
+          } catch (err) {
+            console.error('Failed to broadcast:', err);
+          }
+        }
+
+        async function saveSettings() {
+          try {
+            await fetch('/api/v1/admin/settings', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(settings)
+            });
+            alert('Settings saved');
+          } catch (err) {
+            console.error('Failed to save settings:', err);
+          }
+        }
+
+        async function toggleSimulation() {
+          const enabled = settings.simulation_mode !== 'true';
+          try {
+            await fetch('/api/v1/admin/serial/simulation', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ enabled })
+            });
+            settings.simulation_mode = String(enabled);
+            serial.simulationMode = enabled;
+          } catch (err) {
+            console.error('Failed to toggle simulation:', err);
+          }
+        }
+
+        async function testApartment(apt) {
+          try {
+            await fetch(`/api/v1/apartments/${apt.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ state: 'SELECTED', fadeTime: 300 })
+            });
+          } catch (err) {
+            console.error('Failed to test apartment:', err);
+          }
+        }
+
+        function exportMapping() {
+          window.open('/api/v1/admin/apartments/export/excel', '_blank');
+        }
+
+        function clearLogs() {
+          logs.value = [];
+        }
+
+        function formatTime(ts) {
+          if (!ts) return '';
+          const d = new Date(ts);
+          return d.toLocaleTimeString();
+        }
+
+        function formatUptime(seconds) {
+          const h = Math.floor(seconds / 3600);
+          const m = Math.floor((seconds % 3600) / 60);
+          const s = Math.floor(seconds % 60);
+          return `${h}h ${m}m ${s}s`;
+        }
+
+        function stateClass(state) {
+          const classes = {
+            'SOLD': 'bg-red-600',
+            'AVAILABLE': 'bg-green-600',
+            'UNAVAILABLE': 'bg-orange-600',
+            'SELECTED': 'bg-white text-black',
+            'RESERVED': 'bg-yellow-500 text-black',
+            'OFF': 'bg-gray-600'
+          };
+          return classes[state] || 'bg-gray-600';
+        }
+
+        function methodClass(method) {
+          const classes = {
+            'GET': 'bg-green-600',
+            'POST': 'bg-blue-600',
+            'PUT': 'bg-yellow-600',
+            'DELETE': 'bg-red-600'
+          };
+          return classes[method] || 'bg-gray-600';
+        }
+
+        function editColor(color) {
+          alert('Color editor coming soon. Use API for now.');
+        }
+        
+        function handleFileSelect(event) {
+          importFile.value = event.target.files[0];
+          importResult.value = null;
+          importPreview.value = [];
+        }
+        
+        function handleFileDrop(event) {
+          const file = event.dataTransfer.files[0];
+          if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
+            importFile.value = file;
+            importResult.value = null;
+            importPreview.value = [];
+          }
+        }
+        
+        function clearImportFile() {
+          importFile.value = null;
+          importStats.value = null;
+          importPreview.value = [];
+          importResult.value = null;
+        }
+        
+        async function validateImportFile() {
+          if (!importFile.value) return;
+          importLoading.value = true;
+          try {
+            const formData = new FormData();
+            formData.append('file', importFile.value);
+            
+            const res = await fetch('/api/v1/admin/import/excel/preview', {
+              method: 'POST',
+              body: formData
+            });
+            const data = await res.json();
+            importStats.value = data.stats;
+            importPreview.value = data.preview || [];
+          } catch (err) {
+            console.error('Validation failed:', err);
+            alert('Failed to validate file: ' + err.message);
+          } finally {
+            importLoading.value = false;
+          }
+        }
+        
+        async function executeImport() {
+          if (!importFile.value) return;
+          importLoading.value = true;
+          try {
+            const formData = new FormData();
+            formData.append('file', importFile.value);
+            formData.append('clearExisting', String(importOptions.clearExisting));
+            
+            const res = await fetch('/api/v1/admin/import/excel', {
+              method: 'POST',
+              body: formData
+            });
+            const data = await res.json();
+            importResult.value = data;
+            importStats.value = data.stats;
+            
+            if (data.success) {
+              fetchApartments();
+              fetchFloors();
+            }
+          } catch (err) {
+            console.error('Import failed:', err);
+            importResult.value = { success: false, error: err.message };
+          } finally {
+            importLoading.value = false;
+          }
+        }
+        
+        async function fetchFloors() {
+          try {
+            const res = await fetch('/api/v1/admin/apartments/floors');
+            const data = await res.json();
+            floors.value = data.floors || [];
+          } catch (err) {
+            console.error('Failed to fetch floors:', err);
+          }
+        }
+        
+        async function fetchApartmentStats() {
+          try {
+            const res = await fetch('/api/v1/admin/apartments/stats');
+            const data = await res.json();
+            Object.assign(apartmentStats, data);
+          } catch (err) {
+            console.error('Failed to fetch stats:', err);
+          }
+        }
+        
+        async function loadFloorApartments() {
+          if (selectedFloor.value === null) {
+            await fetchApartments();
+          } else {
+            try {
+              const res = await fetch(`/api/v1/admin/apartments/by-floor/${selectedFloor.value}`);
+              const data = await res.json();
+              apartments.value = data.apartments;
+              lightsMap.value = data.lights || {};
+              initEditedLights(data.apartments, data.lights || {});
+            } catch (err) {
+              console.error('Failed to load floor:', err);
+            }
+          }
+        }
+        
+        function initEditedLights(apts, lights) {
+          for (const apt of apts) {
+            const aptLights = lights[apt.id] || [];
+            editedLights[apt.id] = [
+              aptLights.find(l => l.light_index === 1)?.lightswarm_address || null,
+              aptLights.find(l => l.light_index === 2)?.lightswarm_address || null,
+              aptLights.find(l => l.light_index === 3)?.lightswarm_address || null
+            ];
+          }
+        }
+        
+        function getLightEdit(aptId, index) {
+          if (!editedLights[aptId]) {
+            editedLights[aptId] = [null, null, null];
+          }
+          return editedLights[aptId][index];
+        }
+        
+        function setLightEdit(aptId, index, value) {
+          if (!editedLights[aptId]) {
+            editedLights[aptId] = [null, null, null];
+          }
+          const numValue = value === '' ? null : Number(value);
+          editedLights[aptId][index] = numValue;
+          markChanged(aptId);
+        }
+        
+        function markChanged(aptId) {
+          changedApartments.value.add(aptId);
+        }
+        
+        function hasLights(aptId) {
+          const lights = editedLights[aptId];
+          return lights && lights.some(l => l !== null && l !== '' && !isNaN(l));
+        }
+        
+        async function saveMappingChanges() {
+          const assignments = [];
+          for (const aptId of changedApartments.value) {
+            const lights = editedLights[aptId] || [];
+            const addresses = lights.filter(l => l !== null && l !== '' && !isNaN(l)).map(Number);
+            assignments.push({ apartmentId: aptId, addresses });
+          }
+          
+          try {
+            const res = await fetch('/api/v1/admin/lights/bulk-assign', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ assignments })
+            });
+            const data = await res.json();
+            if (data.success) {
+              changedApartments.value.clear();
+              alert(`Saved ${data.updated} apartment light mappings`);
+              fetchApartmentStats();
+            }
+          } catch (err) {
+            console.error('Failed to save:', err);
+            alert('Failed to save changes');
+          }
+        }
+        
+        function copyLightIds(apt) {
+          const lights = editedLights[apt.id] || [];
+          const text = lights.filter(l => l).join(', ');
+          navigator.clipboard.writeText(text);
+        }
+        
+        function applyBulkAssignment() {
+          let addr = bulkAssign.startAddress;
+          const inc = bulkAssign.increment || 1;
+          
+          const targetApts = bulkAssign.floor !== null 
+            ? apartments.value.filter(a => a.floor === bulkAssign.floor && !hasLights(a.id))
+            : apartments.value.filter(a => !hasLights(a.id));
+          
+          for (const apt of targetApts) {
+            if (!editedLights[apt.id]) {
+              editedLights[apt.id] = [null, null, null];
+            }
+            editedLights[apt.id][0] = addr;
+            markChanged(apt.id);
+            addr += inc;
+          }
+          
+          alert(`Auto-assigned ${targetApts.length} apartments starting at address ${bulkAssign.startAddress}`);
+        }
+        
+        async function exportMappingExcel() {
+          window.open('/api/v1/admin/apartments/export/excel', '_blank');
+        }
+
+        onMounted(() => {
+          fetchStatus();
+          fetchColors();
+          fetchSettings();
+          fetchApartments();
+          fetchFloors();
+          fetchApartmentStats();
+
+          socket.on('api_log', (log) => {
+            logs.value.unshift(log);
+            if (logs.value.length > 100) logs.value.pop();
+          });
+
+          socket.on('log_history', (history) => {
+            logs.value = history;
+          });
+          
+          socket.on('apartments_imported', () => {
+            fetchApartments();
+            fetchFloors();
+            fetchApartmentStats();
+          });
+
+          const statusInterval = setInterval(fetchStatus, 5000);
+          onUnmounted(() => clearInterval(statusInterval));
+        });
+
+        return {
+          host, activeTab, tabs, serial, stats, uptime, logs, stateColors, settings, apartments,
+          test, broadcastLevel, connectionStatus, statusText, currentMode, modeClass, apiEndpoints,
+          sendTestCommand, broadcast, saveSettings, toggleSimulation, testApartment, exportMapping,
+          clearLogs, formatTime, formatUptime, stateClass, methodClass, editColor,
+          importFile, importLoading, importOptions, importStats, importPreview, importResult,
+          handleFileSelect, handleFileDrop, clearImportFile, validateImportFile, executeImport,
+          floors, selectedFloor, apartmentStats, displayedApartments, hasUnsavedChanges, assignedCount,
+          lightsMap, editedLights, bulkAssign, editingApt,
+          fetchFloors, loadFloorApartments, getLightEdit, setLightEdit, markChanged, hasLights,
+          saveMappingChanges, copyLightIds, applyBulkAssignment, exportMappingExcel
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
