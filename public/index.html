@@ -325,18 +325,98 @@
       <!-- Colors Tab -->
       <div v-if="activeTab === 'colors'" class="space-y-6">
         <div class="bg-gray-800 rounded-lg p-4">
-          <h3 class="font-medium mb-4">State Colors</h3>
-          <div class="grid grid-cols-2 gap-4">
-            <div v-for="color in stateColors" :key="color.state_name" 
-                 class="flex items-center space-x-4 p-3 bg-gray-700 rounded-lg">
-              <div class="color-preview" 
-                   :style="{backgroundColor: `rgb(${color.red},${color.green},${color.blue})`}"></div>
-              <div class="flex-1">
-                <p class="font-medium">{{ color.state_name }}</p>
-                <p class="text-sm text-gray-400">RGB({{ color.red }}, {{ color.green }}, {{ color.blue }})</p>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-medium">State Colors</h3>
+            <button @click="saveAllColors" 
+                    :class="['rounded px-4 py-2 text-sm font-medium', colorsChanged ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 opacity-50']"
+                    :disabled="!colorsChanged">
+              Save All Colors
+            </button>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div v-for="color in editableColors" :key="color.state_name" 
+                 class="bg-gray-700 rounded-lg p-4">
+              <div class="flex items-center gap-4 mb-4">
+                <div class="w-16 h-16 rounded-lg border-2 border-gray-500 shadow-lg" 
+                     :style="{backgroundColor: `rgb(${color.red},${color.green},${color.blue})`}"></div>
+                <div>
+                  <p class="font-semibold text-lg">{{ color.state_name }}</p>
+                  <p class="text-sm text-gray-400 font-mono">RGB({{ color.red }}, {{ color.green }}, {{ color.blue }})</p>
+                </div>
               </div>
-              <button @click="editColor(color)" class="text-blue-400 hover:text-blue-300 text-sm">Edit</button>
+              
+              <!-- Red Slider -->
+              <div class="mb-3">
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-sm text-red-400 font-medium">Red</label>
+                  <input type="number" v-model.number="color.red" min="0" max="255" 
+                         @change="markColorsChanged"
+                         class="w-16 bg-gray-600 rounded px-2 py-1 text-center text-sm">
+                </div>
+                <input type="range" v-model.number="color.red" min="0" max="255" 
+                       @input="markColorsChanged"
+                       class="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                       style="background: linear-gradient(to right, #000, #ff0000)">
+              </div>
+              
+              <!-- Green Slider -->
+              <div class="mb-3">
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-sm text-green-400 font-medium">Green</label>
+                  <input type="number" v-model.number="color.green" min="0" max="255" 
+                         @change="markColorsChanged"
+                         class="w-16 bg-gray-600 rounded px-2 py-1 text-center text-sm">
+                </div>
+                <input type="range" v-model.number="color.green" min="0" max="255" 
+                       @input="markColorsChanged"
+                       class="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                       style="background: linear-gradient(to right, #000, #00ff00)">
+              </div>
+              
+              <!-- Blue Slider -->
+              <div class="mb-3">
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-sm text-blue-400 font-medium">Blue</label>
+                  <input type="number" v-model.number="color.blue" min="0" max="255" 
+                         @change="markColorsChanged"
+                         class="w-16 bg-gray-600 rounded px-2 py-1 text-center text-sm">
+                </div>
+                <input type="range" v-model.number="color.blue" min="0" max="255" 
+                       @input="markColorsChanged"
+                       class="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                       style="background: linear-gradient(to right, #000, #0000ff)">
+              </div>
+              
+              <div class="flex items-center gap-2 mt-4">
+                <button @click="testColor(color)" 
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 rounded py-2 text-sm font-medium">
+                  Test on Address 0
+                </button>
+                <button @click="resetColor(color)" 
+                        class="px-3 py-2 bg-gray-600 hover:bg-gray-500 rounded text-sm">
+                  Reset
+                </button>
+              </div>
             </div>
+          </div>
+        </div>
+        
+        <!-- Color Presets -->
+        <div class="bg-gray-800 rounded-lg p-4">
+          <h3 class="font-medium mb-4">Quick Presets</h3>
+          <div class="flex flex-wrap gap-3">
+            <button @click="applyPreset('bright')" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm">
+              Bright (High Intensity)
+            </button>
+            <button @click="applyPreset('dim')" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm">
+              Dim (Low Intensity)
+            </button>
+            <button @click="applyPreset('pastel')" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm">
+              Pastel Colors
+            </button>
+            <button @click="applyPreset('default')" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm">
+              Reset to Defaults
+            </button>
           </div>
         </div>
       </div>
@@ -494,10 +574,7 @@
                   <th class="pb-2 pr-2">Name</th>
                   <th class="pb-2 pr-2">Floor</th>
                   <th class="pb-2 pr-2">Type</th>
-                  <th class="pb-2 pr-2">Pos</th>
-                  <th class="pb-2 pr-2">Light ID 1</th>
-                  <th class="pb-2 pr-2">Light ID 2</th>
-                  <th class="pb-2 pr-2">Light ID 3</th>
+                  <th class="pb-2 pr-2 min-w-[300px]">Light IDs</th>
                   <th class="pb-2 pr-2">Status</th>
                   <th class="pb-2">Actions</th>
                 </tr>
@@ -509,24 +586,25 @@
                   <td class="py-2 pr-2">{{ apt.name }}</td>
                   <td class="py-2 pr-2">{{ apt.floor }}</td>
                   <td class="py-2 pr-2 text-xs">{{ apt.unit_type }}</td>
-                  <td class="py-2 pr-2">{{ apt.unit_position }}</td>
                   <td class="py-2 pr-2">
-                    <input :value="getLightEdit(apt.id, 0)" type="number" min="0" max="65535"
-                           @input="setLightEdit(apt.id, 0, $event.target.value)"
-                           class="w-20 bg-gray-700 rounded px-2 py-1 text-center font-mono text-sm"
-                           placeholder="-">
-                  </td>
-                  <td class="py-2 pr-2">
-                    <input :value="getLightEdit(apt.id, 1)" type="number" min="0" max="65535"
-                           @input="setLightEdit(apt.id, 1, $event.target.value)"
-                           class="w-20 bg-gray-700 rounded px-2 py-1 text-center font-mono text-sm"
-                           placeholder="-">
-                  </td>
-                  <td class="py-2 pr-2">
-                    <input :value="getLightEdit(apt.id, 2)" type="number" min="0" max="65535"
-                           @input="setLightEdit(apt.id, 2, $event.target.value)"
-                           class="w-20 bg-gray-700 rounded px-2 py-1 text-center font-mono text-sm"
-                           placeholder="-">
+                    <div class="flex flex-wrap items-center gap-1">
+                      <div v-for="(lightId, idx) in getAptLights(apt.id)" :key="idx" 
+                           class="flex items-center gap-1 bg-gray-600 rounded px-1">
+                        <input :value="lightId" type="number" min="0" max="65535"
+                               @input="updateLightAt(apt.id, idx, $event.target.value)"
+                               class="w-16 bg-transparent text-center font-mono text-sm py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 rounded"
+                               placeholder="ID">
+                        <button @click="removeLightAt(apt.id, idx)" 
+                                class="text-red-400 hover:text-red-300 px-1 text-lg leading-none"
+                                title="Remove this light ID">×</button>
+                      </div>
+                      <button @click="addLightId(apt.id)" 
+                              class="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium"
+                              title="Add light ID">+ Add</button>
+                    </div>
+                    <div v-if="getAptLights(apt.id).length > 0" class="text-xs text-gray-500 mt-1">
+                      {{ getAptLights(apt.id).filter(l => l !== null && l !== '').length }} light(s) assigned
+                    </div>
                   </td>
                   <td class="py-2 pr-2">
                     <span v-if="hasLights(apt.id)" class="text-green-400 text-xs">✓ Assigned</span>
@@ -800,6 +878,9 @@
         const uptime = ref(0);
         const logs = ref([]);
         const stateColors = ref([]);
+        const editableColors = ref([]);
+        const colorsChanged = ref(false);
+        const originalColors = ref({});
         const settings = reactive({});
         const apartments = ref([]);
         
@@ -898,8 +979,111 @@
             const res = await fetch('/api/v1/admin/colors');
             const data = await res.json();
             stateColors.value = data.colors;
+            editableColors.value = data.colors.map(c => ({ ...c }));
+            originalColors.value = {};
+            data.colors.forEach(c => {
+              originalColors.value[c.state_name] = { red: c.red, green: c.green, blue: c.blue };
+            });
+            colorsChanged.value = false;
           } catch (err) {
             console.error('Failed to fetch colors:', err);
+          }
+        }
+        
+        function markColorsChanged() {
+          colorsChanged.value = true;
+        }
+        
+        async function saveAllColors() {
+          try {
+            for (const color of editableColors.value) {
+              await fetch(`/api/v1/admin/colors/${color.state_name}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ red: color.red, green: color.green, blue: color.blue })
+              });
+            }
+            colorsChanged.value = false;
+            originalColors.value = {};
+            editableColors.value.forEach(c => {
+              originalColors.value[c.state_name] = { red: c.red, green: c.green, blue: c.blue };
+            });
+            alert('All colors saved successfully!');
+          } catch (err) {
+            console.error('Failed to save colors:', err);
+            alert('Failed to save colors');
+          }
+        }
+        
+        async function testColor(color) {
+          try {
+            await fetch('/api/v1/admin/test/address', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                address: 0, 
+                command: 'rgb', 
+                red: color.red, 
+                green: color.green, 
+                blue: color.blue 
+              })
+            });
+          } catch (err) {
+            console.error('Failed to test color:', err);
+          }
+        }
+        
+        function resetColor(color) {
+          const orig = originalColors.value[color.state_name];
+          if (orig) {
+            color.red = orig.red;
+            color.green = orig.green;
+            color.blue = orig.blue;
+          }
+        }
+        
+        function applyPreset(presetName) {
+          const presets = {
+            bright: {
+              SOLD: { red: 255, green: 0, blue: 0 },
+              AVAILABLE: { red: 0, green: 255, blue: 0 },
+              UNAVAILABLE: { red: 255, green: 140, blue: 0 },
+              SELECTED: { red: 255, green: 255, blue: 255 },
+              RESERVED: { red: 255, green: 255, blue: 0 }
+            },
+            dim: {
+              SOLD: { red: 150, green: 0, blue: 0 },
+              AVAILABLE: { red: 0, green: 150, blue: 0 },
+              UNAVAILABLE: { red: 150, green: 80, blue: 0 },
+              SELECTED: { red: 150, green: 150, blue: 150 },
+              RESERVED: { red: 150, green: 150, blue: 0 }
+            },
+            pastel: {
+              SOLD: { red: 255, green: 100, blue: 100 },
+              AVAILABLE: { red: 100, green: 255, blue: 100 },
+              UNAVAILABLE: { red: 255, green: 180, blue: 100 },
+              SELECTED: { red: 200, green: 200, blue: 255 },
+              RESERVED: { red: 255, green: 255, blue: 150 }
+            },
+            default: {
+              SOLD: { red: 255, green: 0, blue: 0 },
+              AVAILABLE: { red: 0, green: 255, blue: 0 },
+              UNAVAILABLE: { red: 180, green: 80, blue: 0 },
+              SELECTED: { red: 255, green: 255, blue: 255 },
+              RESERVED: { red: 255, green: 255, blue: 0 }
+            }
+          };
+          
+          const preset = presets[presetName];
+          if (preset) {
+            editableColors.value.forEach(color => {
+              if (preset[color.state_name]) {
+                color.red = preset[color.state_name].red;
+                color.green = preset[color.state_name].green;
+                color.blue = preset[color.state_name].blue;
+              }
+            });
+            colorsChanged.value = true;
           }
         }
 
@@ -1165,24 +1349,57 @@
         function initEditedLights(apts, lights) {
           for (const apt of apts) {
             const aptLights = lights[apt.id] || [];
-            editedLights[apt.id] = [
-              aptLights.find(l => l.light_index === 1)?.lightswarm_address || null,
-              aptLights.find(l => l.light_index === 2)?.lightswarm_address || null,
-              aptLights.find(l => l.light_index === 3)?.lightswarm_address || null
-            ];
+            const sortedLights = aptLights
+              .sort((a, b) => a.light_index - b.light_index)
+              .map(l => l.lightswarm_address);
+            editedLights[apt.id] = sortedLights.length > 0 ? sortedLights : [];
           }
+        }
+        
+        function getAptLights(aptId) {
+          if (!editedLights[aptId]) {
+            editedLights[aptId] = [];
+          }
+          return editedLights[aptId];
+        }
+        
+        function addLightId(aptId) {
+          if (!editedLights[aptId]) {
+            editedLights[aptId] = [];
+          }
+          editedLights[aptId].push(null);
+          markChanged(aptId);
+        }
+        
+        function removeLightAt(aptId, index) {
+          if (editedLights[aptId] && editedLights[aptId].length > index) {
+            editedLights[aptId].splice(index, 1);
+            markChanged(aptId);
+          }
+        }
+        
+        function updateLightAt(aptId, index, value) {
+          if (!editedLights[aptId]) {
+            editedLights[aptId] = [];
+          }
+          const numValue = value === '' ? null : Number(value);
+          editedLights[aptId][index] = numValue;
+          markChanged(aptId);
         }
         
         function getLightEdit(aptId, index) {
           if (!editedLights[aptId]) {
-            editedLights[aptId] = [null, null, null];
+            editedLights[aptId] = [];
           }
-          return editedLights[aptId][index];
+          return editedLights[aptId][index] || null;
         }
         
         function setLightEdit(aptId, index, value) {
           if (!editedLights[aptId]) {
-            editedLights[aptId] = [null, null, null];
+            editedLights[aptId] = [];
+          }
+          while (editedLights[aptId].length <= index) {
+            editedLights[aptId].push(null);
           }
           const numValue = value === '' ? null : Number(value);
           editedLights[aptId][index] = numValue;
@@ -1291,7 +1508,9 @@
           floors, selectedFloor, apartmentStats, displayedApartments, hasUnsavedChanges, assignedCount,
           lightsMap, editedLights, bulkAssign, editingApt,
           fetchFloors, loadFloorApartments, getLightEdit, setLightEdit, markChanged, hasLights,
-          saveMappingChanges, copyLightIds, applyBulkAssignment, exportMappingExcel
+          saveMappingChanges, copyLightIds, applyBulkAssignment, exportMappingExcel,
+          getAptLights, addLightId, removeLightAt, updateLightAt,
+          editableColors, colorsChanged, markColorsChanged, saveAllColors, testColor, resetColor, applyPreset
         };
       }
     }).mount('#app');
