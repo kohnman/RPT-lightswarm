@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Herescope Integration - LightSwarm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .gradient-header { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); }
+    .card { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); }
+    .code-block { background: #0f172a; border: 1px solid #334155; }
+    .method-get { background: #10b981; }
+    .method-post { background: #3b82f6; }
+    .method-put { background: #f59e0b; }
+    .method-delete { background: #ef4444; }
+    .flow-arrow { color: #3b82f6; }
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+  <header class="gradient-header border-b border-gray-700">
+    <div class="max-w-5xl mx-auto px-6 py-8">
+      <nav class="text-sm text-gray-400 mb-4">
+        <a href="/" class="hover:text-white">Dashboard</a>
+        <span class="mx-2">/</span>
+        <a href="/docs/" class="hover:text-white">Documentation</a>
+        <span class="mx-2">/</span>
+        <span class="text-white">Herescope Integration</span>
+      </nav>
+      <h1 class="text-4xl font-bold text-white mb-2">Herescope Integration Guide</h1>
+      <p class="text-xl text-gray-300">Complete guide for integrating with Unreal Engine application</p>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+    <!-- Quick Start -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 flex items-center">
+        <span class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center mr-3 text-lg">⚡</span>
+        Quick Start (Test in 60 Seconds)
+      </h2>
+      <p class="text-gray-400 mb-4">Run these 3 commands in Terminal to verify the API is working:</p>
+      <div class="code-block rounded-lg p-4 font-mono text-sm space-y-4">
+        <div>
+          <div class="text-gray-500 mb-1"># 1. Check system is running</div>
+          <div class="text-green-400">curl http://MIDDLEWARE_IP:3000/api/v1/health</div>
+        </div>
+        <div>
+          <div class="text-gray-500 mb-1"># 2. Login (stops ambient animation)</div>
+          <div class="text-green-400">curl -X POST http://MIDDLEWARE_IP:3000/api/v1/session/login \</div>
+          <div class="text-green-400 pl-4">-H "Content-Type: application/json" \</div>
+          <div class="text-green-400 pl-4">-d '{"agentId": "test-agent"}'</div>
+        </div>
+        <div>
+          <div class="text-gray-500 mb-1"># 3. Light an apartment green (Available)</div>
+          <div class="text-green-400">curl -X PUT http://MIDDLEWARE_IP:3000/api/v1/apartments/RPT-L09-01 \</div>
+          <div class="text-green-400 pl-4">-H "Content-Type: application/json" \</div>
+          <div class="text-green-400 pl-4">-d '{"state": "AVAILABLE"}'</div>
+        </div>
+      </div>
+      <div class="mt-4 p-4 bg-blue-900/30 border border-blue-700/50 rounded-lg">
+        <p class="text-blue-200">
+          <strong>Replace MIDDLEWARE_IP with:</strong>
+          <code class="bg-gray-800 px-2 py-0.5 rounded ml-2">localhost</code> (same machine),
+          <code class="bg-gray-800 px-2 py-0.5 rounded ml-1">192.168.x.x</code> (local network), or
+          your Railway URL (remote)
+        </p>
+      </div>
+    </section>
+
+    <!-- API Overview -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6">API Overview</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="card rounded-xl p-5 border border-gray-700">
+          <h3 class="font-semibold text-white mb-2">Base URL</h3>
+          <code class="text-blue-400 text-sm">http://{IP}:3000/api/v1</code>
+        </div>
+        <div class="card rounded-xl p-5 border border-gray-700">
+          <h3 class="font-semibold text-white mb-2">Authentication</h3>
+          <p class="text-gray-400 text-sm">None required (internal network use)</p>
+        </div>
+        <div class="card rounded-xl p-5 border border-gray-700">
+          <h3 class="font-semibold text-white mb-2">Content Type</h3>
+          <code class="text-green-400 text-sm">application/json</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Workflow -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 flex items-center">
+        <span class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center mr-3 text-lg">🔄</span>
+        Core Workflow
+      </h2>
+      <div class="card rounded-xl p-6 border border-gray-700">
+        <div class="space-y-6">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-2xl">🏠</div>
+            <div class="flow-arrow text-2xl">→</div>
+            <div class="flex-1 p-4 bg-gray-800 rounded-lg">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="method-post px-2 py-0.5 rounded text-xs font-bold">POST</span>
+                <code class="text-sm text-gray-300">/session/login</code>
+              </div>
+              <p class="text-sm text-gray-400">Agent Login Screen (Idle/Ambient) → Stops ambient lights, fades all down</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-2xl">🔍</div>
+            <div class="flow-arrow text-2xl">→</div>
+            <div class="flex-1 p-4 bg-gray-800 rounded-lg">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="method-put px-2 py-0.5 rounded text-xs font-bold text-black">PUT</span>
+                <code class="text-sm text-gray-300">/apartments/:id</code>
+              </div>
+              <p class="text-sm text-gray-400">Browsing Apartments → Show availability (AVAILABLE/SOLD)</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-2xl">✨</div>
+            <div class="flow-arrow text-2xl">→</div>
+            <div class="flex-1 p-4 bg-gray-800 rounded-lg">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="method-put px-2 py-0.5 rounded text-xs font-bold text-black">PUT</span>
+                <code class="text-sm text-gray-300">/apartments/:id</code>
+              </div>
+              <p class="text-sm text-gray-400">Select Apartment → Highlight selection (SELECTED = white)</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-2xl">🏢</div>
+            <div class="flow-arrow text-2xl">→</div>
+            <div class="flex-1 p-4 bg-gray-800 rounded-lg">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="method-put px-2 py-0.5 rounded text-xs font-bold text-black">PUT</span>
+                <code class="text-sm text-gray-300">/floorplates/:id</code>
+              </div>
+              <p class="text-sm text-gray-400">View Floorplate → Show whole floor</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center text-2xl">👋</div>
+            <div class="flow-arrow text-2xl">→</div>
+            <div class="flex-1 p-4 bg-gray-800 rounded-lg">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="method-post px-2 py-0.5 rounded text-xs font-bold">POST</span>
+                <code class="text-sm text-gray-300">/session/logout</code>
+              </div>
+              <p class="text-sm text-gray-400">Agent Logout → Starts ambient animation loop</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- State Colors -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 flex items-center">
+        <span class="w-8 h-8 rounded-full bg-orange-600 flex items-center justify-center mr-3 text-lg">🎨</span>
+        State Codes Reference
+      </h2>
+      <div class="grid grid-cols-5 gap-4">
+        <div class="card rounded-xl p-4 border border-gray-700 text-center">
+          <div class="w-12 h-12 mx-auto rounded-lg bg-green-500 mb-3"></div>
+          <p class="font-semibold text-white">AVAILABLE</p>
+          <p class="text-xs text-gray-400 mt-1">RGB: 0, 255, 0</p>
+          <p class="text-xs text-gray-500">Unit for sale</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 text-center">
+          <div class="w-12 h-12 mx-auto rounded-lg bg-red-500 mb-3"></div>
+          <p class="font-semibold text-white">SOLD</p>
+          <p class="text-xs text-gray-400 mt-1">RGB: 255, 0, 0</p>
+          <p class="text-xs text-gray-500">Unit is sold</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 text-center">
+          <div class="w-12 h-12 mx-auto rounded-lg bg-yellow-400 mb-3"></div>
+          <p class="font-semibold text-white">RESERVED</p>
+          <p class="text-xs text-gray-400 mt-1">RGB: 255, 255, 0</p>
+          <p class="text-xs text-gray-500">Unit is held</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 text-center">
+          <div class="w-12 h-12 mx-auto rounded-lg bg-orange-500 mb-3"></div>
+          <p class="font-semibold text-white">UNAVAILABLE</p>
+          <p class="text-xs text-gray-400 mt-1">RGB: 180, 80, 0</p>
+          <p class="text-xs text-gray-500">Not available</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 text-center">
+          <div class="w-12 h-12 mx-auto rounded-lg bg-white mb-3 border border-gray-600"></div>
+          <p class="font-semibold text-white">SELECTED</p>
+          <p class="text-xs text-gray-400 mt-1">RGB: 255, 255, 255</p>
+          <p class="text-xs text-gray-500">Current selection</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Endpoints -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6">API Endpoints</h2>
+      
+      <!-- Session Login -->
+      <div class="card rounded-xl border border-gray-700 mb-4 overflow-hidden">
+        <div class="flex items-center p-4 bg-gray-800/50 border-b border-gray-700">
+          <span class="method-post px-3 py-1 rounded text-sm font-bold mr-3">POST</span>
+          <code class="text-lg">/api/v1/session/login</code>
+          <span class="ml-auto text-gray-400">Agent login - stops ambient</span>
+        </div>
+        <div class="p-4">
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-gray-400 mb-2">Request Body:</p>
+              <div class="code-block rounded p-3 font-mono text-sm">
+                <span class="text-purple-400">{</span><br>
+                <span class="text-blue-400 pl-4">"agentId"</span>: <span class="text-green-400">"agent-001"</span><br>
+                <span class="text-purple-400">}</span>
+              </div>
+            </div>
+            <div>
+              <p class="text-sm text-gray-400 mb-2">Response:</p>
+              <div class="code-block rounded p-3 font-mono text-sm">
+                <span class="text-purple-400">{</span><br>
+                <span class="text-blue-400 pl-4">"success"</span>: <span class="text-yellow-400">true</span>,<br>
+                <span class="text-blue-400 pl-4">"message"</span>: <span class="text-green-400">"Session started"</span><br>
+                <span class="text-purple-400">}</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 p-3 bg-gray-800 rounded text-sm text-gray-400">
+            <strong class="text-white">What happens:</strong> Ambient animation stops → All lights fade down from top floor to bottom
+          </div>
+        </div>
+      </div>
+
+      <!-- Session Logout -->
+      <div class="card rounded-xl border border-gray-700 mb-4 overflow-hidden">
+        <div class="flex items-center p-4 bg-gray-800/50 border-b border-gray-700">
+          <span class="method-post px-3 py-1 rounded text-sm font-bold mr-3">POST</span>
+          <code class="text-lg">/api/v1/session/logout</code>
+          <span class="ml-auto text-gray-400">Agent logout - starts ambient</span>
+        </div>
+        <div class="p-4">
+          <div class="p-3 bg-gray-800 rounded text-sm text-gray-400">
+            <strong class="text-white">What happens:</strong> All apartment lights turn off → Ambient animation starts looping
+          </div>
+        </div>
+      </div>
+
+      <!-- Light Apartment -->
+      <div class="card rounded-xl border border-gray-700 mb-4 overflow-hidden">
+        <div class="flex items-center p-4 bg-gray-800/50 border-b border-gray-700">
+          <span class="method-put px-3 py-1 rounded text-sm font-bold text-black mr-3">PUT</span>
+          <code class="text-lg">/api/v1/apartments/{apartmentId}</code>
+          <span class="ml-auto text-gray-400">Light single apartment</span>
+        </div>
+        <div class="p-4">
+          <div class="mb-4">
+            <p class="text-sm text-gray-400 mb-2">Request Body:</p>
+            <div class="code-block rounded p-3 font-mono text-sm">
+              <span class="text-purple-400">{</span><br>
+              <span class="text-blue-400 pl-4">"state"</span>: <span class="text-green-400">"AVAILABLE"</span>,<br>
+              <span class="text-blue-400 pl-4">"fadeTime"</span>: <span class="text-yellow-400">500</span>,<br>
+              <span class="text-blue-400 pl-4">"intensity"</span>: <span class="text-yellow-400">200</span><br>
+              <span class="text-purple-400">}</span>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-gray-400 border-b border-gray-700">
+                  <th class="pb-2 pr-4">Parameter</th>
+                  <th class="pb-2 pr-4">Type</th>
+                  <th class="pb-2 pr-4">Required</th>
+                  <th class="pb-2">Description</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-700">
+                <tr>
+                  <td class="py-2 pr-4"><code class="text-blue-400">state</code></td>
+                  <td class="py-2 pr-4 text-gray-400">string</td>
+                  <td class="py-2 pr-4"><span class="text-green-400">Yes</span></td>
+                  <td class="py-2 text-gray-400">AVAILABLE, SOLD, RESERVED, UNAVAILABLE, SELECTED</td>
+                </tr>
+                <tr>
+                  <td class="py-2 pr-4"><code class="text-blue-400">fadeTime</code></td>
+                  <td class="py-2 pr-4 text-gray-400">number</td>
+                  <td class="py-2 pr-4"><span class="text-gray-500">No</span></td>
+                  <td class="py-2 text-gray-400">Fade duration in milliseconds (default: 500)</td>
+                </tr>
+                <tr>
+                  <td class="py-2 pr-4"><code class="text-blue-400">intensity</code></td>
+                  <td class="py-2 pr-4 text-gray-400">number</td>
+                  <td class="py-2 pr-4"><span class="text-gray-500">No</span></td>
+                  <td class="py-2 text-gray-400">Brightness 0-255 (default: 255)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4 p-3 bg-gray-800 rounded text-sm">
+            <strong class="text-white">Apartment ID Format:</strong>
+            <span class="text-gray-400"> <code class="bg-gray-700 px-1.5 py-0.5 rounded">RPT-L{floor}-{unit}</code> (e.g., <code class="text-blue-400">RPT-L09-01</code>)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Batch Apartments -->
+      <div class="card rounded-xl border border-gray-700 mb-4 overflow-hidden">
+        <div class="flex items-center p-4 bg-gray-800/50 border-b border-gray-700">
+          <span class="method-put px-3 py-1 rounded text-sm font-bold text-black mr-3">PUT</span>
+          <code class="text-lg">/api/v1/apartments/batch</code>
+          <span class="ml-auto text-gray-400">Light multiple apartments</span>
+        </div>
+        <div class="p-4">
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-gray-400 mb-2">Same state for all:</p>
+              <div class="code-block rounded p-3 font-mono text-sm">
+                <span class="text-purple-400">{</span><br>
+                <span class="text-blue-400 pl-4">"apartmentIds"</span>: [<span class="text-green-400">"RPT-L09-01"</span>, <span class="text-green-400">"RPT-L09-02"</span>],<br>
+                <span class="text-blue-400 pl-4">"state"</span>: <span class="text-green-400">"AVAILABLE"</span><br>
+                <span class="text-purple-400">}</span>
+              </div>
+            </div>
+            <div>
+              <p class="text-sm text-gray-400 mb-2">Different states:</p>
+              <div class="code-block rounded p-3 font-mono text-sm">
+                <span class="text-purple-400">{</span><br>
+                <span class="text-blue-400 pl-4">"apartments"</span>: [<br>
+                <span class="pl-8">{<span class="text-blue-400">"id"</span>: <span class="text-green-400">"RPT-L09-01"</span>, <span class="text-blue-400">"state"</span>: <span class="text-green-400">"AVAILABLE"</span>},</span><br>
+                <span class="pl-8">{<span class="text-blue-400">"id"</span>: <span class="text-green-400">"RPT-L09-02"</span>, <span class="text-blue-400">"state"</span>: <span class="text-green-400">"SOLD"</span>}</span><br>
+                <span class="pl-4">]</span><br>
+                <span class="text-purple-400">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floorplate -->
+      <div class="card rounded-xl border border-gray-700 mb-4 overflow-hidden">
+        <div class="flex items-center p-4 bg-gray-800/50 border-b border-gray-700">
+          <span class="method-put px-3 py-1 rounded text-sm font-bold text-black mr-3">PUT</span>
+          <code class="text-lg">/api/v1/floorplates/{floorplateId}</code>
+          <span class="ml-auto text-gray-400">Light entire floor</span>
+        </div>
+        <div class="p-4">
+          <p class="text-sm text-gray-400 mb-2">Request Body:</p>
+          <div class="code-block rounded p-3 font-mono text-sm">
+            <span class="text-purple-400">{</span><br>
+            <span class="text-blue-400 pl-4">"state"</span>: <span class="text-green-400">"AVAILABLE"</span>,<br>
+            <span class="text-blue-400 pl-4">"fadeTime"</span>: <span class="text-yellow-400">500</span><br>
+            <span class="text-purple-400">}</span>
+          </div>
+          <div class="mt-4 p-3 bg-gray-800 rounded text-sm">
+            <strong class="text-white">Floorplate ID:</strong>
+            <span class="text-gray-400"> Usually <code class="bg-gray-700 px-1.5 py-0.5 rounded">Level-{floor}</code> (e.g., <code class="text-blue-400">Level-9</code>)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Off/On -->
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div class="card rounded-xl border border-gray-700 overflow-hidden">
+          <div class="flex items-center p-4 bg-gray-800/50 border-b border-gray-700">
+            <span class="method-post px-3 py-1 rounded text-sm font-bold mr-3">POST</span>
+            <code>/api/v1/apartments/all/off</code>
+          </div>
+          <div class="p-4 text-gray-400 text-sm">
+            Turn all lights off instantly
+          </div>
+        </div>
+        <div class="card rounded-xl border border-gray-700 overflow-hidden">
+          <div class="flex items-center p-4 bg-gray-800/50 border-b border-gray-700">
+            <span class="method-post px-3 py-1 rounded text-sm font-bold mr-3">POST</span>
+            <code>/api/v1/apartments/all/on</code>
+          </div>
+          <div class="p-4 text-gray-400 text-sm">
+            Turn all lights on (optional: <code class="bg-gray-700 px-1 rounded">{"intensity": 200}</code>)
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Error Handling -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 flex items-center">
+        <span class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center mr-3 text-lg">⚠️</span>
+        Error Handling
+      </h2>
+      <div class="card rounded-xl border border-gray-700 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-400 bg-gray-800/50 border-b border-gray-700">
+              <th class="px-4 py-3">Code</th>
+              <th class="px-4 py-3">Meaning</th>
+              <th class="px-4 py-3">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <tr>
+              <td class="px-4 py-3"><span class="text-green-400 font-mono">200</span></td>
+              <td class="px-4 py-3 text-gray-300">Success</td>
+              <td class="px-4 py-3 text-gray-400">Continue</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3"><span class="text-yellow-400 font-mono">400</span></td>
+              <td class="px-4 py-3 text-gray-300">Bad Request</td>
+              <td class="px-4 py-3 text-gray-400">Check your JSON format</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3"><span class="text-yellow-400 font-mono">404</span></td>
+              <td class="px-4 py-3 text-gray-300">Not Found</td>
+              <td class="px-4 py-3 text-gray-400">Apartment/floorplate ID doesn't exist</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3"><span class="text-red-400 font-mono">500</span></td>
+              <td class="px-4 py-3 text-gray-300">Server Error</td>
+              <td class="px-4 py-3 text-gray-400">Retry after 1 second</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3"><span class="text-red-400 font-mono">502</span></td>
+              <td class="px-4 py-3 text-gray-300">Bad Gateway</td>
+              <td class="px-4 py-3 text-gray-400">Server not running or restarting</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-4 p-4 bg-blue-900/30 border border-blue-700/50 rounded-lg">
+        <p class="font-semibold text-blue-200 mb-2">Recommended: Exponential Backoff</p>
+        <p class="text-sm text-gray-300">For 500/502 errors, retry with doubling delays: 1s → 2s → 4s (max 3 retries)</p>
+      </div>
+    </section>
+
+    <!-- Troubleshooting -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6">Troubleshooting</h2>
+      <div class="space-y-3">
+        <div class="card rounded-xl p-4 border border-gray-700 flex items-start gap-4">
+          <span class="text-red-400">●</span>
+          <div>
+            <p class="font-semibold text-white">Connection refused</p>
+            <p class="text-gray-400 text-sm">Check middleware is running, verify IP/port</p>
+          </div>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 flex items-start gap-4">
+          <span class="text-red-400">●</span>
+          <div>
+            <p class="font-semibold text-white">404 on apartment</p>
+            <p class="text-gray-400 text-sm">Verify apartment ID exists (check dashboard)</p>
+          </div>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 flex items-start gap-4">
+          <span class="text-yellow-400">●</span>
+          <div>
+            <p class="font-semibold text-white">Lights don't change</p>
+            <p class="text-gray-400 text-sm">Check simulation mode in dashboard, verify hardware connection</p>
+          </div>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 flex items-start gap-4">
+          <span class="text-yellow-400">●</span>
+          <div>
+            <p class="font-semibold text-white">Ambient won't stop</p>
+            <p class="text-gray-400 text-sm">Call <code class="bg-gray-700 px-1.5 py-0.5 rounded">/session/login</code> to stop ambient animation</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- More Docs -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-6">More Documentation</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        <a href="quick-start.html" class="card rounded-xl p-5 border border-gray-700 hover:border-blue-500 transition-colors block">
+          <div class="text-2xl mb-2">🚀</div>
+          <h3 class="font-semibold text-white mb-1">Quick Start</h3>
+          <p class="text-gray-400 text-sm">Get running in 5 minutes</p>
+        </a>
+        <a href="commissioning.html" class="card rounded-xl p-5 border border-gray-700 hover:border-blue-500 transition-colors block">
+          <div class="text-2xl mb-2">🔧</div>
+          <h3 class="font-semibold text-white mb-1">Commissioning Guide</h3>
+          <p class="text-gray-400 text-sm">Full setup procedure</p>
+        </a>
+        <a href="testing.html" class="card rounded-xl p-5 border border-gray-700 hover:border-blue-500 transition-colors block">
+          <div class="text-2xl mb-2">✅</div>
+          <h3 class="font-semibold text-white mb-1">Testing Checklist</h3>
+          <p class="text-gray-400 text-sm">Printable test procedure</p>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-gray-800 py-6 mt-8">
+    <div class="max-w-5xl mx-auto px-6 text-center text-gray-500 text-sm">
+      River Park Towers LightSwarm Middleware v1.0.0
+    </div>
+  </footer>
+</body>
+</html>

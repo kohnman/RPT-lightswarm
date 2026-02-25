@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commissioning Guide - LightSwarm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .gradient-header { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); }
+    .card { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); }
+    .code-block { background: #0f172a; border: 1px solid #334155; }
+    .step-number { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+    .part-header { background: linear-gradient(90deg, #1e3a5f 0%, transparent 100%); }
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+  <header class="gradient-header border-b border-gray-700">
+    <div class="max-w-5xl mx-auto px-6 py-8">
+      <nav class="text-sm text-gray-400 mb-4">
+        <a href="/" class="hover:text-white">Dashboard</a>
+        <span class="mx-2">/</span>
+        <a href="/docs/" class="hover:text-white">Documentation</a>
+        <span class="mx-2">/</span>
+        <span class="text-white">Commissioning Guide</span>
+      </nav>
+      <h1 class="text-4xl font-bold text-white mb-2">Commissioning Guide</h1>
+      <p class="text-xl text-gray-300">Complete guide for setting up the River Park Towers lighting system from scratch</p>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+    <!-- Overview -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6">Overview</h2>
+      <div class="grid grid-cols-6 gap-3">
+        <div class="card rounded-xl p-4 border border-gray-700 text-center">
+          <div class="step-number w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-2">1</div>
+          <p class="text-sm font-medium text-white">Hardware Setup</p>
+          <p class="text-xs text-gray-400">Connect controller</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 text-center">
+          <div class="step-number w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-2">2</div>
+          <p class="text-sm font-medium text-white">Software Setup</p>
+          <p class="text-xs text-gray-400">Install & start</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 text-center">
+          <div class="step-number w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-2">3</div>
+          <p class="text-sm font-medium text-white">Import Data</p>
+          <p class="text-xs text-gray-400">Load from Excel</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 text-center">
+          <div class="step-number w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-2">4</div>
+          <p class="text-sm font-medium text-white">Assign IDs</p>
+          <p class="text-xs text-gray-400">Map to lights</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 text-center">
+          <div class="step-number w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-2">5</div>
+          <p class="text-sm font-medium text-white">Test</p>
+          <p class="text-xs text-gray-400">Verify all works</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 text-center">
+          <div class="step-number w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-2">6</div>
+          <p class="text-sm font-medium text-white">Go Live</p>
+          <p class="text-xs text-gray-400">Enable for Herescope</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Part 1: Hardware Setup -->
+    <section class="mb-12">
+      <div class="part-header rounded-lg px-4 py-3 mb-6 border-l-4 border-blue-500">
+        <h2 class="text-2xl font-bold">Part 1: Hardware Setup</h2>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-4">Equipment Checklist</h3>
+      <div class="card rounded-xl border border-gray-700 overflow-hidden mb-6">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-400 bg-gray-800/50 border-b border-gray-700">
+              <th class="px-4 py-3">Item</th>
+              <th class="px-4 py-3">Qty</th>
+              <th class="px-4 py-3">Notes</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <tr>
+              <td class="px-4 py-3 text-white">Raspberry Pi 4 (or Mac for testing)</td>
+              <td class="px-4 py-3 text-gray-400">1</td>
+              <td class="px-4 py-3 text-gray-400">4GB+ RAM recommended</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-white">LightSwarm LS-USB-IF controller</td>
+              <td class="px-4 py-3 text-gray-400">1</td>
+              <td class="px-4 py-3 text-gray-400">USB interface module</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-white">USB-A to USB-B cable</td>
+              <td class="px-4 py-3 text-gray-400">1</td>
+              <td class="px-4 py-3 text-gray-400">For LightSwarm connection</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-white">Ethernet cable</td>
+              <td class="px-4 py-3 text-gray-400">1</td>
+              <td class="px-4 py-3 text-gray-400">Connect to network</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-white">Power supply</td>
+              <td class="px-4 py-3 text-gray-400">1</td>
+              <td class="px-4 py-3 text-gray-400">For Raspberry Pi</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-4">Connection Diagram</h3>
+      <div class="card rounded-xl p-6 border border-gray-700 mb-6">
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <div class="bg-green-900/30 border border-green-700/50 rounded-lg p-4 mb-2">
+              <div class="text-3xl mb-2">🖥️</div>
+              <p class="font-semibold text-white">Raspberry Pi</p>
+              <p class="text-xs text-gray-400">(Middleware)</p>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="text-blue-400">↓ USB</div>
+              <div class="text-gray-500">↓ Ethernet</div>
+            </div>
+          </div>
+          <div>
+            <div class="bg-yellow-900/30 border border-yellow-700/50 rounded-lg p-4 mb-2">
+              <div class="text-3xl mb-2">💡</div>
+              <p class="font-semibold text-white">LightSwarm</p>
+              <p class="text-xs text-gray-400">(Controller)</p>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="text-yellow-400">↓ 12V Power</div>
+              <div class="text-gray-400 text-xs">to LED strips</div>
+            </div>
+          </div>
+          <div>
+            <div class="bg-purple-900/30 border border-purple-700/50 rounded-lg p-4 mb-2">
+              <div class="text-3xl mb-2">🌐</div>
+              <p class="font-semibold text-white">Network Switch</p>
+              <p class="text-xs text-gray-400">(to Herescope)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-4">Physical Setup Steps</h3>
+      <div class="space-y-3">
+        <div class="card rounded-xl p-4 border border-gray-700 flex items-start gap-4">
+          <div class="step-number w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0">1</div>
+          <div>
+            <p class="font-semibold text-white">Connect LightSwarm to Raspberry Pi</p>
+            <p class="text-gray-400 text-sm">Plug USB cable from LightSwarm into Raspberry Pi USB port. Power on LightSwarm controller. LED indicator should illuminate.</p>
+          </div>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 flex items-start gap-4">
+          <div class="step-number w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0">2</div>
+          <div>
+            <p class="font-semibold text-white">Connect Raspberry Pi to Network</p>
+            <p class="text-gray-400 text-sm">Plug Ethernet cable into Raspberry Pi, connect other end to network switch. Ensure same network as Herescope server.</p>
+          </div>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700 flex items-start gap-4">
+          <div class="step-number w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0">3</div>
+          <div>
+            <p class="font-semibold text-white">Power On Raspberry Pi</p>
+            <p class="text-gray-400 text-sm">Insert microSD card with Raspberry Pi OS. Connect power supply. Wait for boot (1-2 minutes).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Part 2: Software Setup -->
+    <section class="mb-12">
+      <div class="part-header rounded-lg px-4 py-3 mb-6 border-l-4 border-green-500">
+        <h2 class="text-2xl font-bold">Part 2: Software Setup</h2>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-4">First Time Installation</h3>
+      <div class="code-block rounded-lg p-4 font-mono text-sm mb-6">
+        <div class="text-gray-500 mb-2"># SSH into Raspberry Pi or open terminal</div>
+        <div class="text-green-400">cd /home/pi</div>
+        <div class="text-gray-500 mb-2"># (copy middleware folder here)</div>
+        <br>
+        <div class="text-gray-500 mb-2"># Install dependencies</div>
+        <div class="text-green-400">cd middleware</div>
+        <div class="text-green-400">npm install</div>
+        <br>
+        <div class="text-gray-500 mb-2"># Verify installation</div>
+        <div class="text-green-400">npm start</div>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-4">Verify Hardware Detection</h3>
+      <p class="text-gray-400 mb-4">When you start the middleware, look for:</p>
+      <div class="code-block rounded-lg p-4 font-mono text-sm mb-4">
+        <div class="text-gray-400">[2/5] Initializing serial connection...</div>
+        <div class="text-gray-400">      Port: /dev/ttyUSB0, Baud: 38400</div>
+        <div class="text-green-400">      Serial connection established  ← Good! Hardware detected</div>
+      </div>
+      <div class="p-4 bg-yellow-900/30 border border-yellow-700/50 rounded-lg mb-6">
+        <p class="text-yellow-200 text-sm">
+          <strong>If you see "Running in simulation mode":</strong> The USB isn't detected. Check with:
+          <code class="bg-gray-800 px-2 py-0.5 rounded ml-1">ls -la /dev/ttyUSB*</code>
+        </p>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-4">Configure Serial Port (if needed)</h3>
+      <ol class="space-y-2 text-gray-300">
+        <li class="flex items-start gap-3">
+          <span class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-sm shrink-0">1</span>
+          <span>Open dashboard: <code class="bg-gray-800 px-2 py-0.5 rounded">http://RASPBERRY_PI_IP:3000</code></span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-sm shrink-0">2</span>
+          <span>Go to <strong class="text-white">Settings</strong> tab</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-sm shrink-0">3</span>
+          <span>Set <strong class="text-white">COM Port</strong> to <code class="bg-gray-800 px-2 py-0.5 rounded">/dev/ttyUSB0</code></span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-sm shrink-0">4</span>
+          <span>Set <strong class="text-white">Baud Rate</strong> to <code class="bg-gray-800 px-2 py-0.5 rounded">38400</code></span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-sm shrink-0">5</span>
+          <span>Set <strong class="text-white">Mode</strong> to <span class="text-green-400">Live</span> (not Simulator)</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-sm shrink-0">6</span>
+          <span>Click <strong class="text-white">Save Settings</strong></span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-sm shrink-0">7</span>
+          <span>Restart middleware: <code class="bg-gray-800 px-2 py-0.5 rounded">Ctrl+C</code> then <code class="bg-gray-800 px-2 py-0.5 rounded">npm start</code></span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Part 3: Import Data -->
+    <section class="mb-12">
+      <div class="part-header rounded-lg px-4 py-3 mb-6 border-l-4 border-yellow-500">
+        <h2 class="text-2xl font-bold">Part 3: Import Apartment Data</h2>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-4">Excel File Requirements</h3>
+      <div class="card rounded-xl border border-gray-700 overflow-hidden mb-6">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-400 bg-gray-800/50 border-b border-gray-700">
+              <th class="px-4 py-3">Column</th>
+              <th class="px-4 py-3">Description</th>
+              <th class="px-4 py-3">Example</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <tr>
+              <td class="px-4 py-3 text-white">Record ID Hubspot</td>
+              <td class="px-4 py-3 text-gray-400">External reference</td>
+              <td class="px-4 py-3"><code class="text-blue-400">abc123</code></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-white">Apartment</td>
+              <td class="px-4 py-3 text-gray-400">Full name</td>
+              <td class="px-4 py-3"><code class="text-blue-400">River Park Tower - 909</code></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-white">Plot Number</td>
+              <td class="px-4 py-3 text-gray-400">Unique plot ID</td>
+              <td class="px-4 py-3"><code class="text-blue-400">909</code></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-white">Level (floorplate)</td>
+              <td class="px-4 py-3 text-gray-400">Floor number</td>
+              <td class="px-4 py-3"><code class="text-blue-400">9</code></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-white">Unit Type</td>
+              <td class="px-4 py-3 text-gray-400">Apartment type</td>
+              <td class="px-4 py-3"><code class="text-blue-400">2-Bed</code></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-white">Lighting ID's NO.1/2/3</td>
+              <td class="px-4 py-3 text-gray-400">Light addresses</td>
+              <td class="px-4 py-3"><code class="text-blue-400">1001</code>, <code class="text-blue-400">1002</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-4">Import Process</h3>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="space-y-3">
+          <div class="card rounded-xl p-4 border border-gray-700 flex items-start gap-4">
+            <div class="step-number w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0">1</div>
+            <div>
+              <p class="font-semibold text-white">Open Dashboard</p>
+              <p class="text-gray-400 text-sm">Go to http://MIDDLEWARE_IP:3000</p>
+            </div>
+          </div>
+          <div class="card rounded-xl p-4 border border-gray-700 flex items-start gap-4">
+            <div class="step-number w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0">2</div>
+            <div>
+              <p class="font-semibold text-white">Upload Excel File</p>
+              <p class="text-gray-400 text-sm">Go to Import tab, drag and drop .xlsx file</p>
+            </div>
+          </div>
+          <div class="card rounded-xl p-4 border border-gray-700 flex items-start gap-4">
+            <div class="step-number w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0">3</div>
+            <div>
+              <p class="font-semibold text-white">Preview Data</p>
+              <p class="text-gray-400 text-sm">Click Preview button, verify data looks correct</p>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-3">
+          <div class="card rounded-xl p-4 border border-gray-700 flex items-start gap-4">
+            <div class="step-number w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0">4</div>
+            <div>
+              <p class="font-semibold text-white">Set Options</p>
+              <p class="text-gray-400 text-sm">☑️ "Clear existing" for fresh import</p>
+            </div>
+          </div>
+          <div class="card rounded-xl p-4 border border-gray-700 flex items-start gap-4">
+            <div class="step-number w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0">5</div>
+            <div>
+              <p class="font-semibold text-white">Execute Import</p>
+              <p class="text-gray-400 text-sm">Click Import, wait for confirmation</p>
+            </div>
+          </div>
+          <div class="card rounded-xl p-4 border border-gray-700 flex items-start gap-4">
+            <div class="step-number w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0">6</div>
+            <div>
+              <p class="font-semibold text-white">Verify</p>
+              <p class="text-gray-400 text-sm">Check Mapping Editor shows all apartments</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Part 4: Assign Light IDs -->
+    <section class="mb-12">
+      <div class="part-header rounded-lg px-4 py-3 mb-6 border-l-4 border-purple-500">
+        <h2 class="text-2xl font-bold">Part 4: Assign Light IDs</h2>
+      </div>
+
+      <p class="text-gray-400 mb-6">Light IDs connect apartments to physical lights on the model. Each apartment can have up to 3 lights.</p>
+
+      <h3 class="text-lg font-semibold mb-4">Using the Mapping Editor</h3>
+      <div class="card rounded-xl p-6 border border-gray-700 mb-6">
+        <ol class="space-y-4">
+          <li class="flex items-start gap-4">
+            <span class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-sm shrink-0">1</span>
+            <div>
+              <p class="text-white font-medium">Open Mapping Editor Tab</p>
+              <p class="text-gray-400 text-sm">Shows all apartments in a table. Filter by floor using dropdown.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-4">
+            <span class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-sm shrink-0">2</span>
+            <div>
+              <p class="text-white font-medium">For Each Apartment:</p>
+              <p class="text-gray-400 text-sm">Find the apartment row. Enter Light ID in columns: NO.1, NO.2, NO.3. Light IDs are typically 0-65535.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-4">
+            <span class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-sm shrink-0">3</span>
+            <div>
+              <p class="text-white font-medium">Finding Light IDs:</p>
+              <p class="text-gray-400 text-sm">Physical lights have ID labels, OR use Test Console: enter address, click "Turn On", see which light turns on.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-4">
+            <span class="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-sm shrink-0">4</span>
+            <div>
+              <p class="text-white font-medium">Save Changes</p>
+              <p class="text-gray-400 text-sm">Click Save Changes button (top right). Button is disabled when no changes pending.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-4">Bulk Auto-Assignment</h3>
+      <p class="text-gray-400 mb-4">If lights are numbered sequentially:</p>
+      <div class="card rounded-xl p-6 border border-gray-700">
+        <ol class="space-y-3 text-gray-300">
+          <li class="flex items-start gap-3">
+            <span class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-sm shrink-0">1</span>
+            <span>In Mapping Editor, find <strong class="text-white">Bulk Assignment</strong> panel</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-sm shrink-0">2</span>
+            <span>Enter <strong class="text-white">Start Address</strong> (first light ID)</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-sm shrink-0">3</span>
+            <span>Enter <strong class="text-white">Increment</strong> (usually 1)</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-sm shrink-0">4</span>
+            <span>Optionally filter by floor</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-sm shrink-0">5</span>
+            <span>Click <strong class="text-white">Apply Auto-Assign</strong></span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-sm shrink-0">6</span>
+            <span>Review and click <strong class="text-white">Save Changes</strong></span>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Part 5: Testing -->
+    <section class="mb-12">
+      <div class="part-header rounded-lg px-4 py-3 mb-6 border-l-4 border-orange-500">
+        <h2 class="text-2xl font-bold">Part 5: Testing</h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="card rounded-xl p-5 border border-gray-700">
+          <h3 class="font-semibold text-white mb-3">Test Individual Apartments</h3>
+          <ol class="space-y-2 text-sm text-gray-300">
+            <li>1. Go to <strong>Mapping Editor</strong> tab</li>
+            <li>2. Find an apartment with assigned Light IDs</li>
+            <li>3. Click <strong class="text-blue-400">Test</strong> button</li>
+            <li>4. Physical light should turn WHITE for 3 seconds</li>
+            <li>5. Repeat for several apartments across different floors</li>
+          </ol>
+        </div>
+        <div class="card rounded-xl p-5 border border-gray-700">
+          <h3 class="font-semibold text-white mb-3">Test by Direct Address</h3>
+          <ol class="space-y-2 text-sm text-gray-300">
+            <li>1. Go to <strong>Test Console</strong> tab</li>
+            <li>2. Enter a known Light ID address</li>
+            <li>3. Select <strong>Set RGB</strong>, set to Red (255,0,0)</li>
+            <li>4. Click <strong>Send Command</strong></li>
+            <li>5. Verify the correct physical light turns red</li>
+          </ol>
+        </div>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-4">Test Session Flow</h3>
+      <div class="code-block rounded-lg p-4 font-mono text-sm">
+        <div class="text-gray-500 mb-2"># Login - ambient should stop, lights fade down</div>
+        <div class="text-green-400 mb-4">curl -X POST http://localhost:3000/api/v1/session/login \
+  -H "Content-Type: application/json" \
+  -d '{"agentId": "commissioning-test"}'</div>
+
+        <div class="text-gray-500 mb-2"># Light some apartments</div>
+        <div class="text-green-400 mb-4">curl -X PUT http://localhost:3000/api/v1/apartments/batch \
+  -H "Content-Type: application/json" \
+  -d '{"apartmentIds": ["RPT-L09-01", "RPT-L10-01"], "state": "AVAILABLE"}'</div>
+
+        <div class="text-gray-500 mb-2"># Logout - ambient should start</div>
+        <div class="text-green-400">curl -X POST http://localhost:3000/api/v1/session/logout</div>
+      </div>
+
+      <div class="mt-4 p-4 bg-blue-900/30 border border-blue-700/50 rounded-lg">
+        <p class="text-blue-200">
+          <strong>Full System Test:</strong> See <a href="testing.html" class="underline">Testing Checklist</a> for complete testing procedure.
+        </p>
+      </div>
+    </section>
+
+    <!-- Part 6: Production -->
+    <section class="mb-12">
+      <div class="part-header rounded-lg px-4 py-3 mb-6 border-l-4 border-red-500">
+        <h2 class="text-2xl font-bold">Part 6: Production Setup</h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="card rounded-xl p-5 border border-gray-700">
+          <h3 class="font-semibold text-white mb-3">Enable Auto-Start (PM2)</h3>
+          <div class="code-block rounded p-3 font-mono text-xs mb-3">
+            <div class="text-green-400">npm install -g pm2</div>
+            <div class="text-green-400">cd /home/pi/middleware</div>
+            <div class="text-green-400">pm2 start ecosystem.config.js</div>
+            <div class="text-green-400">pm2 save</div>
+            <div class="text-green-400">pm2 startup</div>
+          </div>
+        </div>
+        <div class="card rounded-xl p-5 border border-gray-700">
+          <h3 class="font-semibold text-white mb-3">Set Static IP</h3>
+          <p class="text-gray-400 text-sm mb-2">Edit <code class="bg-gray-700 px-1 rounded">/etc/dhcpcd.conf</code>:</p>
+          <div class="code-block rounded p-3 font-mono text-xs">
+            <div class="text-blue-400">interface eth0</div>
+            <div class="text-blue-400">static ip_address=192.168.1.100/24</div>
+            <div class="text-blue-400">static routers=192.168.1.1</div>
+          </div>
+        </div>
+        <div class="card rounded-xl p-5 border border-gray-700">
+          <h3 class="font-semibold text-white mb-3">Configure Firewall</h3>
+          <div class="code-block rounded p-3 font-mono text-xs">
+            <div class="text-green-400">sudo ufw allow 3000/tcp</div>
+            <div class="text-green-400">sudo ufw enable</div>
+          </div>
+        </div>
+        <div class="card rounded-xl p-5 border border-gray-700">
+          <h3 class="font-semibold text-white mb-3">Disable Simulation Mode</h3>
+          <ol class="text-gray-400 text-sm space-y-1">
+            <li>1. Open Dashboard → Settings</li>
+            <li>2. Set Mode to <span class="text-green-400">Live</span></li>
+            <li>3. Click Save Settings</li>
+            <li>4. Verify green "Connected" indicator</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- Troubleshooting -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 flex items-center">
+        <span class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center mr-3 text-lg">🔧</span>
+        Troubleshooting
+      </h2>
+      <div class="space-y-3">
+        <div class="card rounded-xl p-4 border border-gray-700">
+          <h3 class="font-semibold text-white mb-2">"Serial port not found"</h3>
+          <div class="code-block rounded p-3 font-mono text-xs">
+            <div class="text-green-400">ls -la /dev/ttyUSB*   <span class="text-gray-500"># Check USB devices</span></div>
+            <div class="text-green-400">sudo usermod -a -G dialout $USER   <span class="text-gray-500"># Add to dialout group</span></div>
+          </div>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700">
+          <h3 class="font-semibold text-white mb-2">"Permission denied on serial port"</h3>
+          <div class="code-block rounded p-3 font-mono text-xs">
+            <div class="text-green-400">sudo chmod 666 /dev/ttyUSB0</div>
+          </div>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700">
+          <h3 class="font-semibold text-white mb-2">Lights don't respond</h3>
+          <ol class="text-gray-400 text-sm space-y-1">
+            <li>1. Check LightSwarm power LED is on</li>
+            <li>2. Check USB cable connection</li>
+            <li>3. Verify correct COM port in Settings</li>
+            <li>4. Verify baud rate is 38400</li>
+            <li>5. Try simulation mode first to test API</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- More Docs -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-6">More Documentation</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        <a href="quick-start.html" class="card rounded-xl p-5 border border-gray-700 hover:border-blue-500 transition-colors block">
+          <div class="text-2xl mb-2">🚀</div>
+          <h3 class="font-semibold text-white mb-1">Quick Start</h3>
+          <p class="text-gray-400 text-sm">Get running in 5 minutes</p>
+        </a>
+        <a href="herescope.html" class="card rounded-xl p-5 border border-gray-700 hover:border-blue-500 transition-colors block">
+          <div class="text-2xl mb-2">🎮</div>
+          <h3 class="font-semibold text-white mb-1">Herescope Integration</h3>
+          <p class="text-gray-400 text-sm">Connect Unreal Engine</p>
+        </a>
+        <a href="testing.html" class="card rounded-xl p-5 border border-gray-700 hover:border-blue-500 transition-colors block">
+          <div class="text-2xl mb-2">✅</div>
+          <h3 class="font-semibold text-white mb-1">Testing Checklist</h3>
+          <p class="text-gray-400 text-sm">Printable test procedure</p>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-gray-800 py-6 mt-8">
+    <div class="max-w-5xl mx-auto px-6 text-center text-gray-500 text-sm">
+      River Park Towers LightSwarm Middleware v1.0.0
+    </div>
+  </footer>
+</body>
+</html>

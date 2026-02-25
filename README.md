@@ -4,14 +4,21 @@ Middleware system for controlling the LightSwarm architectural model lighting sy
 
 ## Documentation
 
+Visit the [Documentation Center](/docs/) or access these guides directly:
+
 | Guide | Description |
 |-------|-------------|
-| [Quick Start](docs/QUICK_START.md) | Get running in 5 minutes |
-| [Herescope Integration](docs/HERESCOPE_INTEGRATION.md) | API guide for Herescope developers |
-| [Commissioning Guide](docs/COMMISSIONING_GUIDE.md) | Full setup and configuration walkthrough |
-| [Testing Checklist](docs/TESTING_CHECKLIST.md) | Printable system test procedures |
+| [Quick Start](docs/quick-start.html) | Get running in 5 minutes |
+| [Herescope Integration](docs/herescope.html) | API guide for Herescope developers |
+| [Commissioning Guide](docs/commissioning.html) | Full setup and configuration walkthrough |
+| [Testing Checklist](docs/testing.html) | Printable system test procedures |
 
 Access the **Help** tab in the Admin Dashboard for interactive guidance.
+
+### Operation Modes
+
+- **Live Mode**: Connects to real LightSwarm hardware via USB (for production)
+- **Simulator Mode**: Software simulation without hardware (for development/testing)
 
 ## Overview
 

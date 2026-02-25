@@ -31,9 +31,21 @@
             <span :class="['status-dot', connectionStatus]"></span>
             <span class="text-sm">{{ statusText }}</span>
           </div>
-          <div class="flex items-center space-x-2">
+          <!-- Mode Toggle Switch -->
+          <div class="flex items-center space-x-3 bg-gray-700 rounded-lg px-3 py-2">
             <span class="text-sm text-gray-400">Mode:</span>
-            <span :class="['px-2 py-1 rounded text-xs font-medium', modeClass]">{{ currentMode }}</span>
+            <div class="flex items-center">
+              <button @click="setMode('live')" 
+                      :class="['px-3 py-1 rounded-l text-xs font-medium transition-colors', !serial.simulationMode ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400 hover:bg-gray-500']">
+                Live
+              </button>
+              <button @click="setMode('simulator')" 
+                      :class="['px-3 py-1 rounded-r text-xs font-medium transition-colors', serial.simulationMode ? 'bg-yellow-600 text-white' : 'bg-gray-600 text-gray-400 hover:bg-gray-500']">
+                Simulator
+              </button>
+            </div>
+            <span v-if="serial.simulationMode" class="text-xs text-yellow-400">(No hardware)</span>
+            <span v-else class="text-xs text-green-400">(Hardware connected)</span>
           </div>
         </div>
       </div>
@@ -331,18 +343,63 @@
 
       <!-- Settings Tab -->
       <div v-if="activeTab === 'settings'" class="space-y-6">
+        <!-- Operation Mode Section -->
+        <div class="bg-gray-800 rounded-lg p-6 border-2" :class="serial.simulationMode ? 'border-yellow-600' : 'border-green-600'">
+          <h3 class="font-medium text-lg mb-4">Operation Mode</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div @click="setMode('live')" 
+                 :class="['cursor-pointer rounded-lg p-4 border-2 transition-all', !serial.simulationMode ? 'border-green-500 bg-green-900/30' : 'border-gray-600 hover:border-gray-500']">
+              <div class="flex items-center gap-3 mb-2">
+                <div :class="['w-4 h-4 rounded-full', !serial.simulationMode ? 'bg-green-500' : 'bg-gray-600']"></div>
+                <h4 class="font-semibold text-lg text-white">Live Mode</h4>
+              </div>
+              <p class="text-sm text-gray-400 mb-2">Connects to real LightSwarm hardware via USB</p>
+              <ul class="text-xs text-gray-500 space-y-1">
+                <li>• Uses physical serial connection</li>
+                <li>• Controls actual lights on model</li>
+                <li>• For production use with Raspberry Pi</li>
+              </ul>
+            </div>
+            <div @click="setMode('simulator')" 
+                 :class="['cursor-pointer rounded-lg p-4 border-2 transition-all', serial.simulationMode ? 'border-yellow-500 bg-yellow-900/30' : 'border-gray-600 hover:border-gray-500']">
+              <div class="flex items-center gap-3 mb-2">
+                <div :class="['w-4 h-4 rounded-full', serial.simulationMode ? 'bg-yellow-500' : 'bg-gray-600']"></div>
+                <h4 class="font-semibold text-lg text-white">Simulator Mode</h4>
+              </div>
+              <p class="text-sm text-gray-400 mb-2">Software simulation - no hardware required</p>
+              <ul class="text-xs text-gray-500 space-y-1">
+                <li>• Simulates all commands and responses</li>
+                <li>• Perfect for development and testing</li>
+                <li>• Herescope can test remotely</li>
+              </ul>
+            </div>
+          </div>
+          <div v-if="serial.simulationMode" class="mt-4 p-3 bg-yellow-900/30 border border-yellow-700 rounded-lg">
+            <p class="text-yellow-200 text-sm">
+              <strong>Simulator Mode Active:</strong> All commands are logged but no physical lights will change. This is safe for testing.
+            </p>
+          </div>
+          <div v-else class="mt-4 p-3 bg-green-900/30 border border-green-700 rounded-lg">
+            <p class="text-green-200 text-sm">
+              <strong>Live Mode Active:</strong> Commands will be sent to the LightSwarm hardware. Ensure USB is connected.
+            </p>
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-6">
           <div class="bg-gray-800 rounded-lg p-4">
-            <h3 class="font-medium mb-4">Serial Connection</h3>
+            <h3 class="font-medium mb-4">Serial Connection (Live Mode)</h3>
             <div class="space-y-3">
               <div>
                 <label class="block text-sm text-gray-400 mb-1">COM Port</label>
                 <input v-model="settings.com_port" type="text"
-                       class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+                       class="w-full bg-gray-700 rounded px-3 py-2 text-white"
+                       :disabled="serial.simulationMode">
               </div>
               <div>
                 <label class="block text-sm text-gray-400 mb-1">Baud Rate</label>
-                <select v-model="settings.baud_rate" class="w-full bg-gray-700 rounded px-3 py-2 text-white">
+                <select v-model="settings.baud_rate" class="w-full bg-gray-700 rounded px-3 py-2 text-white"
+                        :disabled="serial.simulationMode">
                   <option value="9600">9600</option>
                   <option value="19200">19200</option>
                   <option value="38400">38400</option>
@@ -350,12 +407,8 @@
                   <option value="115200">115200</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-sm">Simulation Mode</span>
-                <button @click="toggleSimulation" 
-                        :class="['px-3 py-1 rounded text-sm', settings.simulation_mode === 'true' ? 'bg-yellow-600' : 'bg-gray-600']">
-                  {{ settings.simulation_mode === 'true' ? 'Enabled' : 'Disabled' }}
-                </button>
+              <div class="text-sm text-gray-500" v-if="serial.simulationMode">
+                Serial settings are disabled in Simulator Mode
               </div>
             </div>
           </div>
@@ -684,26 +737,26 @@
         <div class="bg-gray-800 rounded-lg p-4">
           <h3 class="font-medium mb-4">Documentation Links</h3>
           <div class="grid grid-cols-4 gap-4">
-            <a href="/docs/QUICK_START.md" target="_blank" 
-               class="bg-gray-700 hover:bg-gray-600 rounded p-4 text-center">
+            <a href="/docs/quick-start.html" target="_blank" 
+               class="bg-gray-700 hover:bg-gray-600 rounded p-4 text-center transition-colors">
               <div class="text-2xl mb-2">&#128196;</div>
               <p class="font-medium">Quick Start</p>
               <p class="text-xs text-gray-400">Get running in 5 minutes</p>
             </a>
-            <a href="/docs/COMMISSIONING_GUIDE.md" target="_blank"
-               class="bg-gray-700 hover:bg-gray-600 rounded p-4 text-center">
+            <a href="/docs/commissioning.html" target="_blank"
+               class="bg-gray-700 hover:bg-gray-600 rounded p-4 text-center transition-colors">
               <div class="text-2xl mb-2">&#128736;</div>
               <p class="font-medium">Commissioning</p>
               <p class="text-xs text-gray-400">Full setup guide</p>
             </a>
-            <a href="/docs/TESTING_CHECKLIST.md" target="_blank"
-               class="bg-gray-700 hover:bg-gray-600 rounded p-4 text-center">
+            <a href="/docs/testing.html" target="_blank"
+               class="bg-gray-700 hover:bg-gray-600 rounded p-4 text-center transition-colors">
               <div class="text-2xl mb-2">&#9745;</div>
               <p class="font-medium">Testing Checklist</p>
               <p class="text-xs text-gray-400">Printable test procedure</p>
             </a>
-            <a href="/docs/HERESCOPE_INTEGRATION.md" target="_blank"
-               class="bg-gray-700 hover:bg-gray-600 rounded p-4 text-center">
+            <a href="/docs/herescope.html" target="_blank"
+               class="bg-gray-700 hover:bg-gray-600 rounded p-4 text-center transition-colors">
               <div class="text-2xl mb-2">&#128187;</div>
               <p class="font-medium">API Integration</p>
               <p class="text-xs text-gray-400">For Herescope developers</p>
@@ -714,8 +767,8 @@
         <div class="bg-blue-900 bg-opacity-30 border border-blue-700 rounded-lg p-4">
           <h3 class="font-medium mb-2 text-blue-400">Need More Help?</h3>
           <p class="text-sm text-gray-300">
-            Check the full documentation files in the <code class="bg-gray-700 px-1 rounded">middleware/docs/</code> folder.
-            For API testing, use the <strong>API Docs</strong> tab or visit <code class="bg-gray-700 px-1 rounded">/api/docs</code>.
+            Visit the <a href="/docs/" class="text-blue-400 hover:underline">Documentation Center</a> for full guides.
+            For API testing, use the <strong>API Docs</strong> tab or visit <a href="/api/docs" class="text-blue-400 hover:underline">/api/docs</a>.
           </p>
         </div>
       </div>
@@ -920,16 +973,25 @@
 
         async function toggleSimulation() {
           const enabled = settings.simulation_mode !== 'true';
+          await setMode(enabled ? 'simulator' : 'live');
+        }
+
+        async function setMode(mode) {
+          const isSimulator = mode === 'simulator';
           try {
-            await fetch('/api/v1/admin/serial/simulation', {
+            const res = await fetch('/api/v1/admin/serial/simulation', {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ enabled })
+              body: JSON.stringify({ enabled: isSimulator })
             });
-            settings.simulation_mode = String(enabled);
-            serial.simulationMode = enabled;
+            if (res.ok) {
+              settings.simulation_mode = String(isSimulator);
+              serial.simulationMode = isSimulator;
+              fetchStatus();
+            }
           } catch (err) {
-            console.error('Failed to toggle simulation:', err);
+            console.error('Failed to set mode:', err);
+            alert('Failed to change mode. Check console for details.');
           }
         }
 
@@ -1222,7 +1284,7 @@
         return {
           host, activeTab, tabs, serial, stats, uptime, logs, stateColors, settings, apartments,
           test, broadcastLevel, connectionStatus, statusText, currentMode, modeClass, apiEndpoints,
-          sendTestCommand, broadcast, saveSettings, toggleSimulation, testApartment, exportMapping,
+          sendTestCommand, broadcast, saveSettings, toggleSimulation, setMode, testApartment, exportMapping,
           clearLogs, formatTime, formatUptime, stateClass, methodClass, editColor,
           importFile, importLoading, importOptions, importStats, importPreview, importResult,
           handleFileSelect, handleFileDrop, clearImportFile, validateImportFile, executeImport,

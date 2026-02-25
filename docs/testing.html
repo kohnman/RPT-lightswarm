@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Testing Checklist - LightSwarm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .gradient-header { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); }
+    .card { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); }
+    .code-block { background: #0f172a; border: 1px solid #334155; }
+    .checkbox { width: 24px; height: 24px; }
+    @media print {
+      body { background: white; color: black; }
+      .card { background: white; border: 1px solid #ccc; }
+      .no-print { display: none; }
+      .print-break { page-break-before: always; }
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+  <header class="gradient-header border-b border-gray-700 no-print">
+    <div class="max-w-5xl mx-auto px-6 py-8">
+      <nav class="text-sm text-gray-400 mb-4">
+        <a href="/" class="hover:text-white">Dashboard</a>
+        <span class="mx-2">/</span>
+        <a href="/docs/" class="hover:text-white">Documentation</a>
+        <span class="mx-2">/</span>
+        <span class="text-white">Testing Checklist</span>
+      </nav>
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-4xl font-bold text-white mb-2">Testing Checklist</h1>
+          <p class="text-xl text-gray-300">Printable checklist for verifying system functionality</p>
+        </div>
+        <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold flex items-center gap-2">
+          <span>🖨️</span> Print Checklist
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+    <!-- Header for print -->
+    <div class="hidden print:block mb-8">
+      <h1 class="text-3xl font-bold text-black mb-2">LightSwarm Testing Checklist</h1>
+      <p class="text-gray-600">River Park Towers L18</p>
+      <div class="grid grid-cols-3 gap-4 mt-4 border-t border-b py-4">
+        <div><strong>Date:</strong> _________________</div>
+        <div><strong>Tester:</strong> _________________</div>
+        <div><strong>Time:</strong> _________________</div>
+      </div>
+    </div>
+
+    <!-- Section 1: Pre-Flight -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-4 flex items-center">
+        <span class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center mr-3 text-lg">1</span>
+        Pre-Flight Checks
+      </h2>
+      <p class="text-gray-400 mb-4">Complete these before any other testing.</p>
+      <div class="card rounded-xl border border-gray-700 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-400 bg-gray-800/50 border-b border-gray-700">
+              <th class="px-4 py-3 w-16">Pass</th>
+              <th class="px-4 py-3 w-16">Fail</th>
+              <th class="px-4 py-3">Check</th>
+              <th class="px-4 py-3">Expected</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">1.1 Middleware server is running</td>
+              <td class="px-4 py-3 text-gray-400">Terminal shows "Middleware initialized successfully!"</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">1.2 Dashboard opens in browser</td>
+              <td class="px-4 py-3 text-gray-400">Go to http://localhost:3000</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">1.3 Status shows "Connected" (green)</td>
+              <td class="px-4 py-3 text-gray-400">Top-right header area</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">1.4 Mode is correct (Live or Simulator)</td>
+              <td class="px-4 py-3 text-gray-400">Check badge in header</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">1.5 Serial port configured correctly</td>
+              <td class="px-4 py-3 text-gray-400">Settings → COM Port</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">1.6 Apartment data is loaded</td>
+              <td class="px-4 py-3 text-gray-400">Dashboard shows apartment count > 0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-4 p-4 bg-red-900/30 border border-red-700/50 rounded-lg">
+        <p class="text-red-200 text-sm">
+          <strong>If any FAIL:</strong> Stop and resolve before continuing. See Troubleshooting section.
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 2: Basic Communication -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-4 flex items-center">
+        <span class="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center mr-3 text-lg">2</span>
+        Basic Communication Test
+      </h2>
+
+      <h3 class="text-lg font-semibold mb-3">2.1 Broadcast ON/OFF Test</h3>
+      <div class="card rounded-xl border border-gray-700 overflow-hidden mb-4">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-400 bg-gray-800/50 border-b border-gray-700">
+              <th class="px-4 py-3 w-16">✓</th>
+              <th class="px-4 py-3">Step</th>
+              <th class="px-4 py-3">Action</th>
+              <th class="px-4 py-3">Expected Result</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">1</td>
+              <td class="px-4 py-3 text-gray-300">Go to <strong>Test Console</strong> tab</td>
+              <td class="px-4 py-3 text-gray-400">Tab opens</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">2</td>
+              <td class="px-4 py-3 text-gray-300">Click <strong>All ON</strong> button</td>
+              <td class="px-4 py-3 text-gray-400">ALL lights turn ON (white)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">3</td>
+              <td class="px-4 py-3 text-gray-300">Click <strong>All OFF</strong> button</td>
+              <td class="px-4 py-3 text-gray-400">ALL lights turn OFF</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-3">2.2 Single Address Test</h3>
+      <div class="card rounded-xl border border-gray-700 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-400 bg-gray-800/50 border-b border-gray-700">
+              <th class="px-4 py-3 w-16">✓</th>
+              <th class="px-4 py-3">Step</th>
+              <th class="px-4 py-3">Action</th>
+              <th class="px-4 py-3">Expected Result</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">1</td>
+              <td class="px-4 py-3 text-gray-300">Enter Address: <code class="bg-gray-700 px-2 rounded">1</code></td>
+              <td class="px-4 py-3 text-gray-400">Field accepts input</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">2</td>
+              <td class="px-4 py-3 text-gray-300">Select command: <strong>Set RGB</strong></td>
+              <td class="px-4 py-3 text-gray-400">Dropdown shows RGB option</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">3</td>
+              <td class="px-4 py-3 text-gray-300">Set Red: 255, Green: 0, Blue: 0</td>
+              <td class="px-4 py-3 text-gray-400">Fields accept values</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">4</td>
+              <td class="px-4 py-3 text-gray-300">Click <strong>Send Command</strong></td>
+              <td class="px-4 py-3 text-gray-400">Packet hex appears below</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">5</td>
+              <td class="px-4 py-3 text-gray-300">Observe model</td>
+              <td class="px-4 py-3 text-gray-400">Light at address 1 turns <span class="text-red-400 font-bold">RED</span></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white">6</td>
+              <td class="px-4 py-3 text-gray-300">Click <strong>All OFF</strong></td>
+              <td class="px-4 py-3 text-gray-400">Light turns off</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 flex items-center gap-4">
+        <strong>Section 2 Result:</strong>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" class="checkbox rounded">
+          <span class="text-green-400">PASS</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" class="checkbox rounded">
+          <span class="text-red-400">FAIL</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Section 3: State Colors -->
+    <section class="mb-8 print-break">
+      <h2 class="text-2xl font-bold mb-4 flex items-center">
+        <span class="w-10 h-10 rounded-full bg-yellow-600 flex items-center justify-center mr-3 text-lg">3</span>
+        State Colors Test
+      </h2>
+      <p class="text-gray-400 mb-4">Verify each state displays the correct color on physical lights.</p>
+
+      <div class="card rounded-xl border border-gray-700 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-400 bg-gray-800/50 border-b border-gray-700">
+              <th class="px-4 py-3 w-16">✓</th>
+              <th class="px-4 py-3">State</th>
+              <th class="px-4 py-3">Expected Color</th>
+              <th class="px-4 py-3">Visual</th>
+              <th class="px-4 py-3">Matches?</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white font-semibold">AVAILABLE</td>
+              <td class="px-4 py-3 text-green-400">GREEN</td>
+              <td class="px-4 py-3"><div class="w-8 h-8 bg-green-500 rounded"></div></td>
+              <td class="px-4 py-3">
+                <label class="flex items-center gap-1"><input type="checkbox" class="rounded"> Yes</label>
+              </td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white font-semibold">SOLD</td>
+              <td class="px-4 py-3 text-red-400">RED</td>
+              <td class="px-4 py-3"><div class="w-8 h-8 bg-red-500 rounded"></div></td>
+              <td class="px-4 py-3">
+                <label class="flex items-center gap-1"><input type="checkbox" class="rounded"> Yes</label>
+              </td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white font-semibold">RESERVED</td>
+              <td class="px-4 py-3 text-yellow-400">YELLOW</td>
+              <td class="px-4 py-3"><div class="w-8 h-8 bg-yellow-400 rounded"></div></td>
+              <td class="px-4 py-3">
+                <label class="flex items-center gap-1"><input type="checkbox" class="rounded"> Yes</label>
+              </td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white font-semibold">UNAVAILABLE</td>
+              <td class="px-4 py-3 text-orange-400">ORANGE/BROWN</td>
+              <td class="px-4 py-3"><div class="w-8 h-8 bg-orange-500 rounded"></div></td>
+              <td class="px-4 py-3">
+                <label class="flex items-center gap-1"><input type="checkbox" class="rounded"> Yes</label>
+              </td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-white font-semibold">SELECTED</td>
+              <td class="px-4 py-3 text-gray-200">WHITE</td>
+              <td class="px-4 py-3"><div class="w-8 h-8 bg-white rounded border border-gray-600"></div></td>
+              <td class="px-4 py-3">
+                <label class="flex items-center gap-1"><input type="checkbox" class="rounded"> Yes</label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 p-4 bg-gray-800 rounded-lg">
+        <p class="text-sm text-gray-400 mb-2"><strong>Test Command:</strong> (replace APARTMENT_ID)</p>
+        <code class="text-green-400 text-sm">curl -X PUT http://localhost:3000/api/v1/apartments/APARTMENT_ID -H "Content-Type: application/json" -d '{"state": "AVAILABLE"}'</code>
+      </div>
+
+      <div class="mt-4 flex items-center gap-4">
+        <strong>Section 3 Result:</strong>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" class="checkbox rounded">
+          <span class="text-green-400">PASS</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" class="checkbox rounded">
+          <span class="text-red-400">FAIL</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Section 4: Individual Apartments -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-4 flex items-center">
+        <span class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center mr-3 text-lg">4</span>
+        Individual Apartment Tests
+      </h2>
+      <p class="text-gray-400 mb-4">Test 5 apartments from different floors. Fill in the table below.</p>
+
+      <div class="card rounded-xl border border-gray-700 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-400 bg-gray-800/50 border-b border-gray-700">
+              <th class="px-4 py-3">Apartment ID</th>
+              <th class="px-4 py-3">Floor</th>
+              <th class="px-4 py-3">Light IDs</th>
+              <th class="px-4 py-3 w-24">Test Works</th>
+              <th class="px-4 py-3 w-24">Correct Light</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <tr>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-full" placeholder="RPT-L__-__"></td>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-16" placeholder="__"></td>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-full" placeholder="1, 2, 3"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-full" placeholder="RPT-L__-__"></td>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-16" placeholder="__"></td>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-full" placeholder="1, 2, 3"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-full" placeholder="RPT-L__-__"></td>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-16" placeholder="__"></td>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-full" placeholder="1, 2, 3"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-full" placeholder="RPT-L__-__"></td>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-16" placeholder="__"></td>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-full" placeholder="1, 2, 3"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-full" placeholder="RPT-L__-__"></td>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-16" placeholder="__"></td>
+              <td class="px-4 py-3"><input type="text" class="bg-gray-700 rounded px-2 py-1 w-full" placeholder="1, 2, 3"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 flex items-center gap-4">
+        <strong>Section 4 Result:</strong>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" class="checkbox rounded">
+          <span class="text-green-400">PASS</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" class="checkbox rounded">
+          <span class="text-red-400">FAIL</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Section 5: Session Flow -->
+    <section class="mb-8 print-break">
+      <h2 class="text-2xl font-bold mb-4 flex items-center">
+        <span class="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center mr-3 text-lg">5</span>
+        Session Flow Test
+      </h2>
+      <p class="text-gray-400 mb-4">Test the login/logout workflow that Herescope will use.</p>
+
+      <h3 class="text-lg font-semibold mb-3">5.1 Login Test</h3>
+      <div class="card rounded-xl border border-gray-700 overflow-hidden mb-4">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-400 bg-gray-800/50 border-b border-gray-700">
+              <th class="px-4 py-3 w-16">✓</th>
+              <th class="px-4 py-3">Action</th>
+              <th class="px-4 py-3">Expected Result</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-gray-300">Ensure ambient animation is running (if enabled)</td>
+              <td class="px-4 py-3 text-gray-400">Lights are animating</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-gray-300">Run login command</td>
+              <td class="px-4 py-3 text-gray-400">Command succeeds</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-gray-300">Observe model</td>
+              <td class="px-4 py-3 text-gray-400">Ambient stops, lights fade down top-to-bottom</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-gray-300">Check dashboard</td>
+              <td class="px-4 py-3 text-gray-400">Session shows "Active"</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-block rounded-lg p-4 font-mono text-sm mb-6">
+        <div class="text-gray-500 mb-2"># Login command:</div>
+        <div class="text-green-400">curl -X POST http://localhost:3000/api/v1/session/login \
+  -H "Content-Type: application/json" \
+  -d '{"agentId": "test-checklist"}'</div>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-3">5.2 Logout Test</h3>
+      <div class="card rounded-xl border border-gray-700 overflow-hidden mb-4">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-400 bg-gray-800/50 border-b border-gray-700">
+              <th class="px-4 py-3 w-16">✓</th>
+              <th class="px-4 py-3">Action</th>
+              <th class="px-4 py-3">Expected Result</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-gray-300">Run logout command</td>
+              <td class="px-4 py-3 text-gray-400">Command succeeds</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-gray-300">Observe model</td>
+              <td class="px-4 py-3 text-gray-400">Apartment lights turn off</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-gray-300">Observe model</td>
+              <td class="px-4 py-3 text-gray-400">Ambient animation starts (if enabled)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-gray-300">Check dashboard</td>
+              <td class="px-4 py-3 text-gray-400">Session shows "Inactive"</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-block rounded-lg p-4 font-mono text-sm">
+        <div class="text-gray-500 mb-2"># Logout command:</div>
+        <div class="text-green-400">curl -X POST http://localhost:3000/api/v1/session/logout</div>
+      </div>
+
+      <div class="mt-4 flex items-center gap-4">
+        <strong>Section 5 Result:</strong>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" class="checkbox rounded">
+          <span class="text-green-400">PASS</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" class="checkbox rounded">
+          <span class="text-red-400">FAIL</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Test Summary -->
+    <section class="mb-8 print-break">
+      <h2 class="text-2xl font-bold mb-6">Test Summary</h2>
+      <div class="card rounded-xl border border-gray-700 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-400 bg-gray-800/50 border-b border-gray-700">
+              <th class="px-4 py-3">Section</th>
+              <th class="px-4 py-3 w-24 text-center">PASS</th>
+              <th class="px-4 py-3 w-24 text-center">FAIL</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <tr>
+              <td class="px-4 py-3 text-white">1. Pre-Flight Checks</td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-white">2. Basic Communication</td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-white">3. State Colors</td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-white">4. Individual Apartments</td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 text-white">5. Session Flow</td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+              <td class="px-4 py-3 text-center"><input type="checkbox" class="checkbox rounded"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-6 p-6 card rounded-xl border border-gray-700">
+        <div class="grid grid-cols-2 gap-6">
+          <div>
+            <h3 class="font-semibold text-white mb-2">Overall Result:</h3>
+            <label class="flex items-center gap-3 mb-2">
+              <input type="checkbox" class="checkbox rounded">
+              <span class="text-xl text-green-400">✓ ALL PASS</span>
+            </label>
+            <label class="flex items-center gap-3">
+              <input type="checkbox" class="checkbox rounded">
+              <span class="text-xl text-red-400">✗ ISSUES FOUND</span>
+            </label>
+          </div>
+          <div>
+            <h3 class="font-semibold text-white mb-2">Sign-Off:</h3>
+            <div class="space-y-2 text-sm">
+              <p>Tester: _________________________</p>
+              <p>Date: _________________________</p>
+              <p>Signature: _________________________</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Troubleshooting -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-6 flex items-center">
+        <span class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center mr-3 text-lg">🔧</span>
+        Troubleshooting Quick Reference
+      </h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="card rounded-xl p-4 border border-gray-700">
+          <h3 class="font-semibold text-white mb-2">"Connected" not showing</h3>
+          <p class="text-gray-400 text-sm">Check USB cable, restart middleware</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700">
+          <h3 class="font-semibold text-white mb-2">Light doesn't respond</h3>
+          <p class="text-gray-400 text-sm">Verify Light ID in Mapping Editor, test with direct address</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700">
+          <h3 class="font-semibold text-white mb-2">Wrong light responds</h3>
+          <p class="text-gray-400 text-sm">Light ID mapping is incorrect, update in Mapping Editor</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700">
+          <h3 class="font-semibold text-white mb-2">Commands timeout</h3>
+          <p class="text-gray-400 text-sm">Check network, restart middleware</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700">
+          <h3 class="font-semibold text-white mb-2">Dashboard blank</h3>
+          <p class="text-gray-400 text-sm">Clear browser cache, check terminal for errors</p>
+        </div>
+        <div class="card rounded-xl p-4 border border-gray-700">
+          <h3 class="font-semibold text-white mb-2">Ambient won't stop/start</h3>
+          <p class="text-gray-400 text-sm">Call login/logout endpoint, check Settings</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- More Docs -->
+    <section class="mb-8 no-print">
+      <h2 class="text-2xl font-bold mb-6">More Documentation</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        <a href="quick-start.html" class="card rounded-xl p-5 border border-gray-700 hover:border-blue-500 transition-colors block">
+          <div class="text-2xl mb-2">🚀</div>
+          <h3 class="font-semibold text-white mb-1">Quick Start</h3>
+          <p class="text-gray-400 text-sm">Get running in 5 minutes</p>
+        </a>
+        <a href="commissioning.html" class="card rounded-xl p-5 border border-gray-700 hover:border-blue-500 transition-colors block">
+          <div class="text-2xl mb-2">🔧</div>
+          <h3 class="font-semibold text-white mb-1">Commissioning Guide</h3>
+          <p class="text-gray-400 text-sm">Full setup procedure</p>
+        </a>
+        <a href="herescope.html" class="card rounded-xl p-5 border border-gray-700 hover:border-blue-500 transition-colors block">
+          <div class="text-2xl mb-2">🎮</div>
+          <h3 class="font-semibold text-white mb-1">Herescope Integration</h3>
+          <p class="text-gray-400 text-sm">Connect Unreal Engine</p>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-gray-800 py-6 mt-8 no-print">
+    <div class="max-w-5xl mx-auto px-6 text-center text-gray-500 text-sm">
+      River Park Towers LightSwarm Middleware v1.0.0
+    </div>
+  </footer>
+</body>
+</html>

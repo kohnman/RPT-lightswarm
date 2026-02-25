@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation - LightSwarm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .gradient-header { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); }
+    .card { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); }
+    .doc-card:hover { transform: translateY(-4px); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+  <header class="gradient-header border-b border-gray-700">
+    <div class="max-w-5xl mx-auto px-6 py-12 text-center">
+      <h1 class="text-5xl font-bold text-white mb-4">LightSwarm Documentation</h1>
+      <p class="text-xl text-gray-300 mb-6">River Park Towers Lighting System</p>
+      <a href="/" class="inline-block bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors">
+        ← Back to Dashboard
+      </a>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-12">
+    <!-- Quick Links -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6">Documentation Guides</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <a href="quick-start.html" class="doc-card card rounded-2xl p-6 border border-gray-700 hover:border-blue-500 transition-all block">
+          <div class="flex items-start gap-4">
+            <div class="text-4xl">🚀</div>
+            <div>
+              <h3 class="text-xl font-semibold text-white mb-2">Quick Start Guide</h3>
+              <p class="text-gray-400 mb-3">Get the lighting system running in under 5 minutes. Perfect for first-time setup and testing.</p>
+              <ul class="text-sm text-gray-500 space-y-1">
+                <li>• Install and start the server</li>
+                <li>• Open the dashboard</li>
+                <li>• Run your first test</li>
+              </ul>
+            </div>
+          </div>
+        </a>
+
+        <a href="herescope.html" class="doc-card card rounded-2xl p-6 border border-gray-700 hover:border-green-500 transition-all block">
+          <div class="flex items-start gap-4">
+            <div class="text-4xl">🎮</div>
+            <div>
+              <h3 class="text-xl font-semibold text-white mb-2">Herescope Integration</h3>
+              <p class="text-gray-400 mb-3">Complete API reference for integrating with Unreal Engine. For Herescope developers.</p>
+              <ul class="text-sm text-gray-500 space-y-1">
+                <li>• REST API endpoints</li>
+                <li>• Session management</li>
+                <li>• State codes and colors</li>
+              </ul>
+            </div>
+          </div>
+        </a>
+
+        <a href="commissioning.html" class="doc-card card rounded-2xl p-6 border border-gray-700 hover:border-yellow-500 transition-all block">
+          <div class="flex items-start gap-4">
+            <div class="text-4xl">🔧</div>
+            <div>
+              <h3 class="text-xl font-semibold text-white mb-2">Commissioning Guide</h3>
+              <p class="text-gray-400 mb-3">Full setup procedure from hardware to production. For on-site technicians.</p>
+              <ul class="text-sm text-gray-500 space-y-1">
+                <li>• Hardware setup</li>
+                <li>• Import apartment data</li>
+                <li>• Assign light IDs</li>
+              </ul>
+            </div>
+          </div>
+        </a>
+
+        <a href="testing.html" class="doc-card card rounded-2xl p-6 border border-gray-700 hover:border-purple-500 transition-all block">
+          <div class="flex items-start gap-4">
+            <div class="text-4xl">✅</div>
+            <div>
+              <h3 class="text-xl font-semibold text-white mb-2">Testing Checklist</h3>
+              <p class="text-gray-400 mb-3">Printable checklist for verifying system functionality. For QA and sign-off.</p>
+              <ul class="text-sm text-gray-500 space-y-1">
+                <li>• Pre-flight checks</li>
+                <li>• Communication tests</li>
+                <li>• Session flow verification</li>
+              </ul>
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- System Status -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6">System Overview</h2>
+      <div class="card rounded-2xl p-6 border border-gray-700">
+        <div class="grid md:grid-cols-3 gap-6">
+          <div>
+            <h3 class="font-semibold text-white mb-3">Architecture</h3>
+            <div class="text-sm text-gray-400 space-y-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                <span>Herescope (Unreal Engine)</span>
+              </div>
+              <div class="pl-4 text-gray-500">↓ REST API</div>
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                <span>Middleware (Node.js)</span>
+              </div>
+              <div class="pl-4 text-gray-500">↓ MDP Protocol</div>
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                <span>LightSwarm Controller</span>
+              </div>
+              <div class="pl-4 text-gray-500">↓ LED Drivers</div>
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                <span>Physical Lights</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="font-semibold text-white mb-3">State Colors</h3>
+            <div class="space-y-2">
+              <div class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded bg-green-500"></div>
+                <span class="text-sm text-gray-300">AVAILABLE (for sale)</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded bg-red-500"></div>
+                <span class="text-sm text-gray-300">SOLD</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded bg-yellow-400"></div>
+                <span class="text-sm text-gray-300">RESERVED</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded bg-orange-500"></div>
+                <span class="text-sm text-gray-300">UNAVAILABLE</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded bg-white border border-gray-600"></div>
+                <span class="text-sm text-gray-300">SELECTED</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="font-semibold text-white mb-3">Quick URLs</h3>
+            <div class="space-y-2 text-sm">
+              <a href="/" class="block text-blue-400 hover:underline">Dashboard</a>
+              <a href="/api/docs" class="block text-blue-400 hover:underline">API Documentation</a>
+              <a href="/api/v1/health" class="block text-blue-400 hover:underline" target="_blank">Health Check</a>
+              <a href="/api/v1/status" class="block text-blue-400 hover:underline" target="_blank">System Status</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Audience Guide -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6">Choose Your Path</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="card rounded-xl p-5 border border-gray-700">
+          <h3 class="font-semibold text-blue-400 mb-2">For Developers</h3>
+          <p class="text-sm text-gray-400 mb-3">Integrating with Herescope or building on the API</p>
+          <ol class="text-sm text-gray-300 space-y-1">
+            <li>1. <a href="quick-start.html" class="text-blue-400 hover:underline">Quick Start</a></li>
+            <li>2. <a href="herescope.html" class="text-blue-400 hover:underline">API Integration</a></li>
+            <li>3. <a href="/api/docs" class="text-blue-400 hover:underline">Interactive API Docs</a></li>
+          </ol>
+        </div>
+        <div class="card rounded-xl p-5 border border-gray-700">
+          <h3 class="font-semibold text-green-400 mb-2">For Technicians</h3>
+          <p class="text-sm text-gray-400 mb-3">Setting up and commissioning the system</p>
+          <ol class="text-sm text-gray-300 space-y-1">
+            <li>1. <a href="commissioning.html" class="text-green-400 hover:underline">Commissioning Guide</a></li>
+            <li>2. <a href="testing.html" class="text-green-400 hover:underline">Testing Checklist</a></li>
+            <li>3. <a href="/" class="text-green-400 hover:underline">Dashboard Settings</a></li>
+          </ol>
+        </div>
+        <div class="card rounded-xl p-5 border border-gray-700">
+          <h3 class="font-semibold text-yellow-400 mb-2">For First-Timers</h3>
+          <p class="text-sm text-gray-400 mb-3">New to the system? Start here</p>
+          <ol class="text-sm text-gray-300 space-y-1">
+            <li>1. <a href="quick-start.html" class="text-yellow-400 hover:underline">Quick Start Guide</a></li>
+            <li>2. <a href="/" class="text-yellow-400 hover:underline">Explore Dashboard</a></li>
+            <li>3. <a href="testing.html" class="text-yellow-400 hover:underline">Run Basic Tests</a></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- Version Info -->
+    <section class="text-center text-gray-500 text-sm">
+      <p>LightSwarm Middleware v1.0.0</p>
+      <p>River Park Towers Sales Suite - Level 18</p>
+    </section>
+  </main>
+
+  <footer class="border-t border-gray-800 py-6 mt-8">
+    <div class="max-w-5xl mx-auto px-6 text-center text-gray-500 text-sm">
+      <a href="/" class="hover:text-white">Dashboard</a>
+      <span class="mx-2">•</span>
+      <a href="/api/docs" class="hover:text-white">API Docs</a>
+      <span class="mx-2">•</span>
+      <span>v1.0.0</span>
+    </div>
+  </footer>
+</body>
+</html>
