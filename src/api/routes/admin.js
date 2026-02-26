@@ -723,6 +723,54 @@ router.put('/serial/simulation', (req, res) => {
 });
 
 // =====================
+// Lights Lookup
+// =====================
+
+/**
+ * GET /api/v1/admin/lights/by-address/:address
+ * Look up apartment by lightswarm address (for stacking model highlight)
+ */
+router.get('/lights/by-address/:address', (req, res) => {
+  const address = parseInt(req.params.address, 10);
+  if (isNaN(address) || address < 0 || address > 65535) {
+    return res.status(400).json({ error: 'Invalid address', code: 'INVALID_ADDRESS' });
+  }
+
+  // First check apartment_lights (primary source)
+  const lightRow = database.apartmentLights.getByAddress(address);
+  if (lightRow) {
+    const apartment = database.apartments.get(lightRow.apartment_id);
+    if (apartment) {
+      return res.json({
+        apartment: {
+          id: apartment.id,
+          name: apartment.name,
+          floor: apartment.floor,
+          unit_position: apartment.unit_position,
+          plot_number: apartment.plot_number
+        }
+      });
+    }
+  }
+
+  // Fallback: apartments.lightswarm_address
+  const apartment = database.apartments.getByAddress(address);
+  if (apartment) {
+    return res.json({
+      apartment: {
+        id: apartment.id,
+        name: apartment.name,
+        floor: apartment.floor,
+        unit_position: apartment.unit_position,
+        plot_number: apartment.plot_number
+      }
+    });
+  }
+
+  res.json({ apartment: null });
+});
+
+// =====================
 // Test Commands
 // =====================
 

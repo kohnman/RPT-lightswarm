@@ -273,6 +273,34 @@
             </div>
           </div>
         </div>
+
+        <!-- Stacking Model -->
+        <div class="bg-gray-800 rounded-lg p-4">
+          <h3 class="font-medium mb-4">Stacking Model</h3>
+          <div class="flex gap-6">
+            <div class="relative flex-shrink-0 w-[200px] h-[560px] overflow-hidden rounded border border-gray-700">
+              <img src="/images/stacking-diagram.png" alt="Building stacking diagram" 
+                   class="absolute inset-0 w-full h-full object-cover">
+              <svg class="absolute inset-0 w-full h-full pointer-events-none" 
+                   viewBox="0 0 200 560" preserveAspectRatio="xMidYMid slice">
+                <rect v-for="f in 56" :key="f"
+                      x="0" :y="(56 - f) * (560/56)" :height="560/56" width="200"
+                      :class="['transition-all duration-200', highlightedFloor === f ? 'fill-cyan-500/40 stroke-cyan-400 stroke-2' : 'fill-transparent stroke-transparent']"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p v-if="highlightedFloor !== null" class="text-lg text-cyan-400 font-medium">
+                {{ stackingLabel }}
+              </p>
+              <p v-else-if="highlightedAddressOnly !== null" class="text-gray-400">
+                Address {{ highlightedAddressOnly }} (no apartment assigned)
+              </p>
+              <p v-else class="text-gray-500">
+                Select a unit or send a test command to highlight the apartment on the stacking model.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Import Tab -->
@@ -995,6 +1023,26 @@
           return apartments.value.filter(apt => hasLights(apt.id)).length;
         });
 
+        function getUnitsPerFloor(floor) {
+          if (floor >= 7 && floor <= 27) return 9;
+          if (floor >= 28 && floor <= 30) return 8;
+          if (floor >= 32 && floor <= 49) return 6;
+          if (floor === 50 || (floor >= 51 && floor <= 55)) return 3;
+          return null;
+        }
+
+        const stackingLabel = computed(() => {
+          const f = highlightedFloor.value;
+          if (f === null) return '';
+          const units = highlightedUnitTotal.value ?? getUnitsPerFloor(f);
+          const pos = highlightedUnitPosition.value;
+          if (f === 1) return 'Floor 1 · Amenities';
+          if (f === 31) return 'Floor 31 · Amenities';
+          if (f === 56) return 'Floor 56 · Observation deck';
+          if (units !== null && pos !== null) return `Floor ${f} · Unit ${pos} of ${units}`;
+          return `Floor ${f}`;
+        });
+
         const test = reactive({
           address: 0,
           command: 'on',
@@ -1007,6 +1055,11 @@
           selectedUnit: ''
         });
         const broadcastLevel = ref(200);
+
+        const highlightedFloor = ref(null);
+        const highlightedUnitPosition = ref(null);
+        const highlightedUnitTotal = ref(null);
+        const highlightedAddressOnly = ref(null);
         
         const apiPreview = reactive({
           action: 'apartment_state',
@@ -1209,6 +1262,30 @@
 
         async function sendTestCommand() {
           try {
+            if (test.selectedUnit) {
+              const apt = apartments.value.find(a => a.id === test.selectedUnit);
+              if (apt) {
+                highlightedFloor.value = apt.floor;
+                highlightedUnitPosition.value = apt.unit_position ?? null;
+                highlightedUnitTotal.value = getUnitsPerFloor(apt.floor);
+                highlightedAddressOnly.value = null;
+              }
+            } else if (test.address !== '' && test.address !== null && !isNaN(test.address)) {
+              const resLookup = await fetch(`/api/v1/admin/lights/by-address/${test.address}`);
+              const dataLookup = await resLookup.json();
+              if (dataLookup.apartment) {
+                const apt = dataLookup.apartment;
+                highlightedFloor.value = apt.floor;
+                highlightedUnitPosition.value = apt.unit_position ?? null;
+                highlightedUnitTotal.value = getUnitsPerFloor(apt.floor);
+                highlightedAddressOnly.value = null;
+              } else {
+                highlightedFloor.value = null;
+                highlightedUnitPosition.value = null;
+                highlightedUnitTotal.value = null;
+                highlightedAddressOnly.value = test.address;
+              }
+            }
             const res = await fetch('/api/v1/admin/test/address', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -1242,7 +1319,16 @@
               } else if (apt.lightswarm_address) {
                 test.address = apt.lightswarm_address;
               }
+              highlightedFloor.value = apt.floor;
+              highlightedUnitPosition.value = apt.unit_position ?? null;
+              highlightedUnitTotal.value = getUnitsPerFloor(apt.floor);
+              highlightedAddressOnly.value = null;
             }
+          } else {
+            highlightedFloor.value = null;
+            highlightedUnitPosition.value = null;
+            highlightedUnitTotal.value = null;
+            highlightedAddressOnly.value = null;
           }
         }
 
@@ -1687,7 +1773,9 @@
           getAptLights, addLightId, removeLightAt, updateLightAt,
           editableColors, colorsChanged, markColorsChanged, saveAllColors, testColor, resetColor, applyPreset,
           apiPreview, onUnitSelect, getApiMethod, getApiEndpoint, getApiBody, getCurlCommand,
-          copyApiCommand, copyApiBody, copyCurlCommand
+          copyApiCommand, copyApiBody, copyCurlCommand,
+          highlightedFloor, highlightedUnitPosition, highlightedUnitTotal, highlightedAddressOnly,
+          stackingLabel
         };
       }
     }).mount('#app');
