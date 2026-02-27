@@ -75,6 +75,27 @@ npm start
 - **API Documentation**: http://raspberry-pi-ip:3000/api/docs
 - **API Base URL**: http://raspberry-pi-ip:3000/api/v1/
 
+### Deploying to Railway
+
+Source code: [github.com/kohnman/RPT-lightswarm](https://github.com/kohnman/RPT-lightswarm)
+
+**Connect Railway to GitHub for auto-deploy:**
+
+1. Open [Railway Dashboard](https://railway.app/dashboard)
+2. Select your project → **lightswarm-middleware** service
+3. Go to **Settings** → **Source**
+4. Click **Connect Repo** and select `kohnman/RPT-lightswarm`
+5. Set branch to `main` (or your deploy branch)
+6. Save — pushes to `main` will trigger automatic deployments
+
+**Manual deploy via CLI:**
+
+```bash
+cd middleware
+railway link   # if not already linked
+railway up
+```
+
 ## Configuration
 
 ### Serial Connection
