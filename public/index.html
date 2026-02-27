@@ -16,22 +16,22 @@
     .status-simulation { background-color: #f59e0b; }
     .color-preview { width: 40px; height: 40px; border-radius: 8px; border: 2px solid #374151; }
     .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
+    nav .flex { -webkit-overflow-scrolling: touch; }
   </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen">
   <div id="app" v-cloak>
-    <header class="bg-gray-800 border-b border-gray-700 px-6 py-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <h1 class="text-xl font-bold text-white">River Park LightSwarm</h1>
-          <span class="text-sm text-gray-400">v1.0.0</span>
+    <header class="bg-gray-800 border-b border-gray-700 px-4 py-3 md:px-6 md:py-4">
+      <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-wrap items-center gap-2 md:space-x-4">
+          <h1 class="text-lg md:text-xl font-bold text-white">River Park LightSwarm</h1>
+          <span class="text-xs md:text-sm text-gray-400">v{{ appVersion }} · {{ appBuild }}</span>
         </div>
-        <div class="flex items-center space-x-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-6">
           <div class="flex items-center space-x-2">
             <span :class="['status-dot', connectionStatus]"></span>
             <span class="text-sm">{{ statusText }}</span>
           </div>
-          <!-- Mode Toggle Switch -->
           <div class="flex items-center space-x-3 bg-gray-700 rounded-lg px-3 py-2">
             <span class="text-sm text-gray-400">Mode:</span>
             <div class="flex items-center">
@@ -44,27 +44,27 @@
                 Simulator
               </button>
             </div>
-            <span v-if="serial.simulationMode" class="text-xs text-yellow-400">(No hardware)</span>
-            <span v-else class="text-xs text-green-400">(Hardware connected)</span>
+            <span v-if="serial.simulationMode" class="text-xs text-yellow-400 hidden sm:inline">(No hardware)</span>
+            <span v-else class="text-xs text-green-400 hidden sm:inline">(Hardware connected)</span>
           </div>
         </div>
       </div>
     </header>
 
-    <nav class="bg-gray-800 border-b border-gray-700 px-6">
-      <div class="flex space-x-6">
+    <nav class="bg-gray-800 border-b border-gray-700 px-4 md:px-6 overflow-x-auto">
+      <div class="flex flex-nowrap space-x-4 md:space-x-6 min-w-max">
         <button v-for="tab in tabs" :key="tab.id"
                 @click="activeTab = tab.id"
-                :class="['py-3 px-2 text-sm font-medium', activeTab === tab.id ? 'tab-active' : 'text-gray-400 hover:text-gray-200']">
+                :class="['py-3 px-2 text-sm font-medium whitespace-nowrap', activeTab === tab.id ? 'tab-active' : 'text-gray-400 hover:text-gray-200']">
           {{ tab.name }}
         </button>
       </div>
     </nav>
 
-    <main class="p-6">
+    <main class="p-4 md:p-6">
       <!-- Dashboard Tab -->
       <div v-if="activeTab === 'dashboard'" class="space-y-6">
-        <div class="grid grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <div class="bg-gray-800 rounded-lg p-4">
             <h3 class="text-sm text-gray-400 mb-1">Serial Status</h3>
             <p class="text-2xl font-bold" :class="serial.isOpen ? 'text-green-400' : 'text-red-400'">
@@ -108,9 +108,11 @@
 
       <!-- Test Console Tab -->
       <div v-if="activeTab === 'test'" class="space-y-6">
-        <div class="grid grid-cols-2 gap-6">
-          <div class="bg-gray-800 rounded-lg p-4">
-            <h3 class="font-medium mb-4">Quick Test</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Left column: Quick Test, Broadcast Commands, Herescope API -->
+          <div class="space-y-6">
+            <div class="bg-gray-800 rounded-lg p-4">
+              <h3 class="font-medium mb-4">Quick Test</h3>
             <div class="space-y-4">
               <!-- Unit Selector -->
               <div>
@@ -177,7 +179,6 @@
             </div>
           </div>
 
-          <div class="space-y-6">
             <div class="bg-gray-800 rounded-lg p-4">
               <h3 class="font-medium mb-4">Broadcast Commands</h3>
               <div class="grid grid-cols-2 gap-3">
@@ -272,23 +273,22 @@
               </details>
             </div>
           </div>
-        </div>
 
-        <!-- Stacking Model -->
-        <div class="bg-gray-800 rounded-lg p-4">
-          <h3 class="font-medium mb-4">Stacking Model</h3>
-          <div class="flex gap-6">
-            <div class="relative flex-shrink-0 w-[200px] h-[560px] overflow-hidden rounded border border-gray-700">
-              <img src="/images/stacking-diagram.png" alt="Building stacking diagram" 
-                   class="absolute inset-0 w-full h-full object-cover">
+          <!-- Right column: Stacking Model -->
+          <div class="bg-gray-800 rounded-lg p-4 flex flex-col min-h-[400px] md:min-h-[600px] lg:min-h-[800px]">
+            <h3 class="font-medium mb-4">Stacking Model</h3>
+            <div class="relative flex-1 min-h-[400px] md:min-h-[600px] lg:min-h-[800px] w-full rounded border border-gray-700 bg-gray-900 overflow-hidden">
+              <img :src="'/images/stacking-diagram.png?v=' + appVersion" alt="Building stacking diagram" 
+                   class="absolute inset-0 w-full h-full object-contain">
               <svg class="absolute inset-0 w-full h-full pointer-events-none" 
-                   viewBox="0 0 200 560" preserveAspectRatio="xMidYMid slice">
+                   viewBox="0 0 838 1024" preserveAspectRatio="xMidYMid meet">
+                <!-- Overlay from river_park_floor_grid_mapping: non-uniform heights (L56=266px, G=165px) -->
                 <rect v-for="f in 56" :key="f"
-                      x="0" :y="(56 - f) * (560/56)" :height="560/56" width="200"
-                      :class="['transition-all duration-200', highlightedFloor === f ? 'fill-cyan-500/40 stroke-cyan-400 stroke-2' : 'fill-transparent stroke-transparent']"/>
+                      x="0" :y="(floorGeometry[f].y / 100) * 1024" :height="(floorGeometry[f].h / 100) * 1024" width="838"
+                      :class="['transition-all duration-200', Number(highlightedFloor) === Number(f) ? 'fill-cyan-500/40 stroke-cyan-400 stroke-2' : 'fill-transparent stroke-transparent']"/>
               </svg>
             </div>
-            <div class="flex-1 min-w-0">
+            <div class="mt-4">
               <p v-if="highlightedFloor !== null" class="text-lg text-cyan-400 font-medium">
                 {{ stackingLabel }}
               </p>
@@ -305,7 +305,7 @@
 
       <!-- Import Tab -->
       <div v-if="activeTab === 'import'" class="space-y-6">
-        <div class="grid grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="bg-gray-800 rounded-lg p-4">
             <h3 class="font-medium mb-4">Import Apartment Matrix (Excel)</h3>
             <div class="space-y-4">
@@ -412,7 +412,7 @@
           <h3 class="font-medium mb-4" :class="importResult.success ? 'text-green-400' : 'text-red-400'">
             {{ importResult.success ? 'Import Successful' : 'Import Failed' }}
           </h3>
-          <div class="grid grid-cols-4 gap-4 text-center">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div class="bg-gray-700 rounded p-3">
               <p class="text-2xl font-bold text-blue-400">{{ importResult.imported || 0 }}</p>
               <p class="text-sm text-gray-400">Imported</p>
@@ -537,7 +537,7 @@
         <!-- Operation Mode Section -->
         <div class="bg-gray-800 rounded-lg p-6 border-2" :class="serial.simulationMode ? 'border-yellow-600' : 'border-green-600'">
           <h3 class="font-medium text-lg mb-4">Operation Mode</h3>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div @click="setMode('live')" 
                  :class="['cursor-pointer rounded-lg p-4 border-2 transition-all', !serial.simulationMode ? 'border-green-500 bg-green-900/30' : 'border-gray-600 hover:border-gray-500']">
               <div class="flex items-center gap-3 mb-2">
@@ -577,7 +577,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="bg-gray-800 rounded-lg p-4">
             <h3 class="font-medium mb-4">Serial Connection (Live Mode)</h3>
             <div class="space-y-3">
@@ -636,8 +636,8 @@
       <!-- Mapping Editor Tab -->
       <div v-if="activeTab === 'mapping'" class="space-y-6">
         <div class="bg-gray-800 rounded-lg p-4">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center space-x-4">
+          <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 md:space-x-4">
               <h3 class="font-medium">Light Mapping Editor</h3>
               <select v-model="selectedFloor" @change="loadFloorApartments" 
                       class="bg-gray-700 rounded px-3 py-1 text-sm">
@@ -658,7 +658,7 @@
             </div>
           </div>
           
-          <div class="grid grid-cols-4 gap-4 mb-4 text-sm">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
             <div class="bg-gray-700 rounded p-3">
               <p class="text-gray-400">Total Apartments</p>
               <p class="text-xl font-bold">{{ apartmentStats.total_apartments || apartments.length }}</p>
@@ -737,7 +737,7 @@
         
         <div class="bg-gray-800 rounded-lg p-4">
           <h3 class="font-medium mb-4">Bulk Assignment</h3>
-          <div class="grid grid-cols-4 gap-4">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <label class="block text-sm text-gray-400 mb-1">Start Address</label>
               <input v-model.number="bulkAssign.startAddress" type="number" min="0"
@@ -802,7 +802,7 @@
         <div class="bg-gray-800 rounded-lg p-6">
           <h2 class="text-2xl font-bold mb-6">Quick Start Guide</h2>
           
-          <div class="grid grid-cols-3 gap-6 mb-8">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-gray-700 rounded-lg p-4">
               <div class="text-3xl mb-2">1</div>
               <h3 class="font-medium mb-2">Check Connection</h3>
@@ -821,7 +821,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="bg-gray-800 rounded-lg p-4">
             <h3 class="font-medium mb-4 text-blue-400">How to Import Apartments</h3>
             <ol class="space-y-2 text-sm text-gray-300">
@@ -869,7 +869,7 @@
 
         <div class="bg-gray-800 rounded-lg p-4">
           <h3 class="font-medium mb-4 text-red-400">Troubleshooting</h3>
-          <div class="grid grid-cols-2 gap-4 text-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div class="bg-gray-700 rounded p-3">
               <p class="font-medium text-white mb-1">Light doesn't respond</p>
               <p class="text-gray-400">Check if the correct Light ID is assigned. Use Test Console with the address to verify.</p>
@@ -899,7 +899,7 @@
 
         <div class="bg-gray-800 rounded-lg p-4">
           <h3 class="font-medium mb-4">State Colors Reference</h3>
-          <div class="flex space-x-4">
+          <div class="flex flex-wrap gap-3">
             <div class="flex items-center space-x-2">
               <div class="w-6 h-6 rounded bg-green-500"></div>
               <span class="text-sm">AVAILABLE</span>
@@ -925,7 +925,7 @@
 
         <div class="bg-gray-800 rounded-lg p-4">
           <h3 class="font-medium mb-4">Documentation Links</h3>
-          <div class="grid grid-cols-4 gap-4">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <a href="/docs/quick-start.html" target="_blank" 
                class="bg-gray-700 hover:bg-gray-600 rounded p-4 text-center transition-colors">
               <div class="text-2xl mb-2">&#128196;</div>
@@ -966,6 +966,14 @@
 
   <script>
     const { createApp, ref, reactive, computed, onMounted, onUnmounted } = Vue;
+
+    // Bump this on every change to bust cache and track updates
+    const APP_VERSION = '1.0.3';
+    const APP_BUILD = '2026-02-26';
+
+    // Floor overlay geometry from river_park_floor_grid_mapping (y_top_percent, height_percent)
+    // Source: Stacking diagram, non-uniform heights (Level 56=266px, G=165px, penthouse taller)
+    const FLOOR_GEOMETRY = { 56:{y:8.211265,h:5.487931},55:{y:13.699195,h:1.671137},54:{y:15.370332,h:1.464824},53:{y:16.835156,h:1.526718},52:{y:18.361873,h:1.361667},51:{y:19.72354,h:1.40293},50:{y:21.12647,h:1.237879},49:{y:22.364349,h:1.547349},48:{y:23.911698,h:1.361667},47:{y:25.273365,h:1.40293},46:{y:26.676295,h:1.382298},45:{y:28.058593,h:1.40293},44:{y:29.461523,h:1.361667},43:{y:30.82319,h:1.423561},42:{y:32.246751,h:1.361667},41:{y:33.608418,h:1.40293},40:{y:35.011347,h:1.320404},39:{y:36.331752,h:1.464824},38:{y:37.796575,h:1.382298},37:{y:39.178874,h:1.40293},36:{y:40.581803,h:1.361667},35:{y:41.94347,h:1.40293},34:{y:43.3464,h:1.382298},33:{y:44.728698,h:1.40293},32:{y:46.131628,h:1.361667},31:{y:47.493295,h:1.423561},30:{y:48.916856,h:1.361667},29:{y:50.278523,h:1.40293},28:{y:51.681452,h:1.382298},27:{y:53.063751,h:1.40293},26:{y:54.46668,h:1.361667},25:{y:55.828347,h:1.423561},24:{y:57.251908,h:1.361667},23:{y:58.613575,h:1.40293},22:{y:60.016505,h:1.382298},21:{y:61.398803,h:1.40293},20:{y:62.801733,h:1.196616},19:{y:63.998349,h:1.588612},18:{y:65.586961,h:1.361667},17:{y:66.948628,h:1.40293},16:{y:68.351558,h:1.382298},15:{y:69.733856,h:1.40293},14:{y:71.136786,h:1.361667},13:{y:72.498453,h:1.40293},12:{y:73.901382,h:1.382298},11:{y:75.283681,h:1.40293},10:{y:76.68661,h:1.279142},9:{y:77.965752,h:1.506086},8:{y:79.471838,h:1.361667},7:{y:80.833505,h:1.40293},6:{y:82.236435,h:1.382298},5:{y:83.618733,h:1.40293},4:{y:85.021663,h:1.382298},3:{y:86.403961,h:1.40293},2:{y:87.806891,h:1.382298},1:{y:89.189189,h:1.279142} };
 
     createApp({
       setup() {
@@ -1036,8 +1044,10 @@
           if (f === null) return '';
           const units = highlightedUnitTotal.value ?? getUnitsPerFloor(f);
           const pos = highlightedUnitPosition.value;
-          if (f === 1) return 'Floor 1 · Amenities';
-          if (f === 31) return 'Floor 31 · Amenities';
+          if (f === 1) return 'Floor 1 · Fitness centre & changing room, juice bar';
+          if (f === 31) return 'Floor 31 · Cinema room, meeting room, multi-media room, children\'s playroom';
+          if (f === 50) return 'Floor 50 · Sky terrace, residential lounge & residences';
+          if (f >= 51 && f <= 55) return `Floor ${f} · Penthouse & sub-penthouse`;
           if (f === 56) return 'Floor 56 · Observation deck';
           if (units !== null && pos !== null) return `Floor ${f} · Unit ${pos} of ${units}`;
           return `Floor ${f}`;
@@ -1760,6 +1770,9 @@
         });
 
         return {
+          appVersion: APP_VERSION,
+          appBuild: APP_BUILD,
+          floorGeometry: FLOOR_GEOMETRY,
           host, activeTab, tabs, serial, stats, uptime, logs, stateColors, settings, apartments,
           test, broadcastLevel, connectionStatus, statusText, currentMode, modeClass, apiEndpoints,
           sendTestCommand, broadcast, saveSettings, toggleSimulation, setMode, testApartment, exportMapping,

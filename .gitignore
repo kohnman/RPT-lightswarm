@@ -1,7 +1,35 @@
+# Dependencies
 node_modules/
-data/*.db
-logs/
-coverage/
+
+# Environment & secrets
 .env
+.env.*
+!.env.example
+
+# Database & data
+data/*.db
+*.sqlite
+*.sqlite3
+
+# Logs & temp
+logs/
 *.log
+npm-debug.log*
+
+# Build & coverage
+coverage/
+dist/
+build/
+
+# OS
 .DS_Store
+Thumbs.db
+
+# IDE & tools
+.railway/
+.vscode/
+*.swp
+*.swo
+
+# Excel temp (keep source files, ignore temp)
+~$*
